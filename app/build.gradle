@@ -37,4 +37,11 @@ android {
         jniLibs.srcDir 'src/main/libs'
         jni.srcDirs = [] //disable automatic ndk-build call
     }
+
+    clean {
+        delete 'src/main/jniLibs'
+        delete 'src/main/libs'
+        delete 'src/main/obj'
+        delete 'src/main/jni/liquidfun-1.1.0/liquidfun/Box2D/swig/gen'
+    }
 }
