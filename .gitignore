@@ -7,5 +7,6 @@ android-ndk-r10e
 libs
 obj
 gen
+build
 app/build
 
