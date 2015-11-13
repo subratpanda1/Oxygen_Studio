@@ -22,7 +22,11 @@ android {
     }
 
     task ndkBuild(type: Exec) {
-       commandLine 'ndk-build', '-C', file('src/main').absolutePath
+       Properties properties = new Properties()
+       properties.load(project.rootProject.file('local.properties').newDataInputStream())
+       def sdkDir = properties.getProperty('sdk.dir')
+       def ndkDir = properties.getProperty('ndk.dir')
+       commandLine ndkDir + '/ndk-build', '-C', file('src/main').absolutePath
     }
 
     tasks.withType(JavaCompile) {
@@ -34,7 +38,7 @@ android {
     }
 
     sourceSets.main {
-        jniLibs.srcDir 'src/main/libs'
+        // jniLibs.srcDir 'src/main/libs'
         jni.srcDirs = [] //disable automatic ndk-build call
     }
 
