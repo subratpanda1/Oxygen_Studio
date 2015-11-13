@@ -24,4 +24,17 @@ android {
     task ndkBuild(type: Exec) {
        commandLine 'ndk-build', '-C', file('src/main').absolutePath
     }
+
+    tasks.withType(JavaCompile) {
+        compileTask -> compileTask.dependsOn ndkBuild
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/jni/liquidfun-1.1.0/liquidfun/Box2D/swig/gen'
+    }
+
+    sourceSets.main {
+        jniLibs.srcDir 'src/main/libs'
+        jni.srcDirs = [] //disable automatic ndk-build call
+    }
 }

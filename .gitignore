@@ -1,10 +1,10 @@
 .gradle
 .idea
+*.iml
 liquidfun-1.1.0
 android-ndk-r10e
 libs
 obj
 gen
-app/build/intermediates
-app/build/outputs
+app/build
 
