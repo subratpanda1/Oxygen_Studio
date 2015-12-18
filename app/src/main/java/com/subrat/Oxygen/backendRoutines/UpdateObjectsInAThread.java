@@ -5,7 +5,10 @@ import android.graphics.PointF;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Handler;
+import android.os.Message;
+
 import com.subrat.Oxygen.activities.OxygenActivity;
+import com.subrat.Oxygen.customviews.OxygenView;
 import com.subrat.Oxygen.objects.*;
 import com.subrat.Oxygen.objects.Object;
 import com.subrat.Oxygen.utilities.Configuration;
@@ -45,9 +48,15 @@ public class UpdateObjectsInAThread {
 
     // private Context context;
 
-    public UpdateObjectsInAThread(Context context, Handler threadHandler) {
+    public UpdateObjectsInAThread(Context context, final OxygenView oxygenView) {
         // this.context = context;
-        this.threadHandler = threadHandler;
+        threadHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                oxygenView.invalidate();
+            }
+        };
+
         repeatTaskRunning = false;
         initializeShake();
         initializeRepeatingTask();

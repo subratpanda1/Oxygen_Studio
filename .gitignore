@@ -9,4 +9,4 @@ obj
 gen
 build
 app/build
-
+app/*.apk

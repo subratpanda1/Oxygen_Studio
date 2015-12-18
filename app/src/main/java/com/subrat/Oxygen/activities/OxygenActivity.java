@@ -33,8 +33,7 @@ public class OxygenActivity extends Activity {
     OxygenView oxygenView;
 
     UpdateObjectsInAThread updateObjectsInAThread = null;
-    Handler threadHandler;
-    
+
     Button.OnClickListener onClickListener;
 
     @Override
@@ -52,19 +51,12 @@ public class OxygenActivity extends Activity {
 
         context = this;
 
-        threadHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                oxygenView.invalidate();
-            }
-        };
-
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
         	physicsEngine = new PhysicsEngine();
         }
 
         if (updateObjectsInAThread == null) {
-            updateObjectsInAThread = new UpdateObjectsInAThread(this, threadHandler);
+            updateObjectsInAThread = new UpdateObjectsInAThread(this, oxygenView);
         }
         
         onClickListener = new Button.OnClickListener() {
