@@ -35,24 +35,8 @@ public class PhysicsManager {
     private ArrayList<DrawableCircle> particleList = new ArrayList<>();
     public ArrayList<DrawableCircle> getParticleList() { return particleList; }
 
-    public PhysicsCircle createPhysicsCircle(PointF center, float radius, int rotation) {
-        PhysicsCircle circle = new PhysicsCircle(center, radius, rotation);
-
-        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            liquidFunEngine.createCircle(circle);
-        }
-
-        return circle;
-    }
-
-    public PhysicsLine createPhysicsLine(PointF start, PointF end) {
-        PhysicsLine line = new PhysicsLine(start, end);
-
-        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            liquidFunEngine.createLine(line);
-        }
-
-        return line;
+    public LiquidFunEngine getLiquidFunEngine() {
+        return liquidFunEngine;
     }
 
     public void updateAllObjects() {

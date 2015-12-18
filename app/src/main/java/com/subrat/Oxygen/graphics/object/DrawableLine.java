@@ -29,7 +29,7 @@ public class DrawableLine extends DrawableObject implements LineInterface {
 
     static Paint linePainter = null;
 
-    // Only to be called from HadaGraphicsEngine
+    // Only to be called from GraphicsObjectBuilder
     public DrawableLine(PointF start, PointF end) {
         setEndPoints(start, end);
     }
@@ -40,22 +40,16 @@ public class DrawableLine extends DrawableObject implements LineInterface {
             linePainter.setColor(Color.YELLOW);
             linePainter.setAntiAlias(true);
             linePainter.setStyle(Paint.Style.STROKE);
-            linePainter.setStrokeWidth(MathUtils.getPixelFromMeter(Configuration.LINE_THICKNESS));
+            linePainter.setStrokeWidth(MathUtils.getMathUtils().getPixelFromMeter(Configuration.LINE_THICKNESS));
         }
 
         return linePainter;
     }
 
     public boolean draw(Canvas canvas) {
-        PointF startPixel = MathUtils.getPixelBasedPointFromMeterBasedPoint(start);
-        PointF endPixel = MathUtils.getPixelBasedPointFromMeterBasedPoint(end);
+        PointF startPixel = MathUtils.getMathUtils().getPixelBasedPointFromMeterBasedPoint(start);
+        PointF endPixel = MathUtils.getMathUtils().getPixelBasedPointFromMeterBasedPoint(end);
         canvas.drawLine(startPixel.x, startPixel.y, endPixel.x, endPixel.y, getLinePainter());
         return true;
-    }
-
-    public void editLine(PointF start, PointF end) {
-        setEndPoints(start, end);
-
-        ((PhysicsLine)ObjectMapper.getObjectMapper().getPhysicsObjectFromDrawableObject(this)).editLine(start, end);
     }
 }

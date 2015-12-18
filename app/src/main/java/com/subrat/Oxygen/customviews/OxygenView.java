@@ -8,9 +8,8 @@ import android.view.View;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
 import com.subrat.Oxygen.graphics.HadaGraphicsEngine;
-import com.subrat.Oxygen.graphics.ObjectBuilder;
+import com.subrat.Oxygen.physics.PhysicsObjectBuilder;
 import com.subrat.Oxygen.graphics.object.DrawableObject;
-import com.subrat.Oxygen.physics.PhysicsManager;
 
 import java.util.ArrayList;
 
@@ -51,7 +50,7 @@ public class OxygenView extends View implements View.OnTouchListener {
     private void drawAllObjects(Canvas canvas) {
     	if (OxygenActivity.getContext() == null) return;
     	OxygenActivity.setCanvasDimensions(canvas.getWidth(), canvas.getHeight());
-        ObjectBuilder.createOrUpdateBoundaryLines();
+        PhysicsObjectBuilder.getPhysicsObjectBuilder().createOrUpdateBoundaryLines();
 
         for (DrawableObject object : HadaGraphicsEngine.getHadaGraphicsEngine().getObjectList()) {
             object.draw(canvas);
@@ -99,7 +98,7 @@ public class OxygenView extends View implements View.OnTouchListener {
             case MotionEvent.ACTION_MOVE:
                 break;
             case MotionEvent.ACTION_UP:
-                ObjectBuilder.buildObject(points);
+                PhysicsObjectBuilder.getPhysicsObjectBuilder().buildObject(points);
                 points.clear();
                 drawingMode = false;
                 oxygenActivity.startSimulation();

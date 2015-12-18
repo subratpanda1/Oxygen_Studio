@@ -73,8 +73,8 @@ public class PhysicsCircle extends PhysicsObject implements CircleInterface {
 
     public void initRandomVelocity() {
         velocity = new PointF();
-        velocity.x = MathUtils.getRandom(-Configuration.MAX_VELOCITY, Configuration.MAX_VELOCITY);
-        velocity.y = (float) (Math.sqrt(Math.pow(Configuration.MAX_VELOCITY, 2) - Math.pow(velocity.x, 2)) * MathUtils.getRandomSign());
+        velocity.x = MathUtils.getMathUtils().getRandom(-Configuration.MAX_VELOCITY, Configuration.MAX_VELOCITY);
+        velocity.y = (float) (Math.sqrt(Math.pow(Configuration.MAX_VELOCITY, 2) - Math.pow(velocity.x, 2)) * MathUtils.getMathUtils().getRandomSign());
     }
 
     public boolean isStill() {
@@ -84,14 +84,14 @@ public class PhysicsCircle extends PhysicsObject implements CircleInterface {
     public void updatePosition() {
         // Don't change velocity if acceleration is very low
         // if (MathUtils.getAbsolute(this.getGravity()) > Configuration.getMinGravity()) {
-        PointF velocityChange = MathUtils.scalePoint(getGravity(), Configuration.REFRESH_INTERVAL);
-        MathUtils.addToPoint(velocity, velocityChange);
+        PointF velocityChange = MathUtils.getMathUtils().scalePoint(getGravity(), Configuration.REFRESH_INTERVAL);
+        MathUtils.getMathUtils().addToPoint(velocity, velocityChange);
         // }
 
         // Don't change position if velocity is very low
         // if (MathUtils.getAbsolute(this.getVelocity()) > Configuration.getMinVelocity()) {
-        PointF positionChange = MathUtils.scalePoint(getVelocity(), Configuration.REFRESH_INTERVAL);
-        MathUtils.addToPoint(center, positionChange);
+        PointF positionChange = MathUtils.getMathUtils().scalePoint(getVelocity(), Configuration.REFRESH_INTERVAL);
+        MathUtils.getMathUtils().addToPoint(center, positionChange);
         // }
     }
 }

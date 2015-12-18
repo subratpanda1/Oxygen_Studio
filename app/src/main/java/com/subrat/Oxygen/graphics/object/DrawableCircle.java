@@ -56,13 +56,13 @@ public class DrawableCircle extends DrawableObject implements CircleInterface {
     
     private void initBitmap() {
         pic = BitmapFactory.decodeResource(OxygenActivity.getContext().getResources(), R.drawable.tennis_ball);
-        pic = Bitmap.createScaledBitmap(pic, 2 * MathUtils.getPixelFromMeter(this.radius), 2 * MathUtils.getPixelFromMeter(this.radius),  true);
+        pic = Bitmap.createScaledBitmap(pic, 2 * MathUtils.getMathUtils().getPixelFromMeter(this.radius), 2 * MathUtils.getMathUtils().getPixelFromMeter(this.radius),  true);
     }
 
     protected Paint getFillPainter() {
         if (fillPainter == null) {
             fillPainter = new Paint();
-            fillPainter.setColor(Color.parseColor(MathUtils.getRandomColor()));
+            fillPainter.setColor(Color.parseColor(MathUtils.getMathUtils().getRandomColor()));
             fillPainter.setAntiAlias(true);
             fillPainter.setStyle(Paint.Style.FILL);
         }
@@ -72,7 +72,7 @@ public class DrawableCircle extends DrawableObject implements CircleInterface {
     protected Paint getStrokePainter() {
         if (strokePainter == null) {
             strokePainter = new Paint();
-            strokePainter.setColor(Color.parseColor(MathUtils.getRandomColor()));
+            strokePainter.setColor(Color.parseColor(MathUtils.getMathUtils().getRandomColor()));
             strokePainter.setAntiAlias(true);
             strokePainter.setStyle(Paint.Style.STROKE);
             strokePainter.setStrokeWidth(Configuration.CIRCLE_BORDER);
@@ -83,8 +83,8 @@ public class DrawableCircle extends DrawableObject implements CircleInterface {
     public boolean draw(Canvas canvas) {
     	if (isParticle) {
     	} else {
-    		int bitmapCornerX = MathUtils.getPixelFromMeter(this.getCenter().x - this.getRadius());
-    		int bitmapCornerY = MathUtils.getPixelFromMeter(this.getCenter().y - this.getRadius());
+    		int bitmapCornerX = MathUtils.getMathUtils().getPixelFromMeter(this.getCenter().x - this.getRadius());
+    		int bitmapCornerY = MathUtils.getMathUtils().getPixelFromMeter(this.getCenter().y - this.getRadius());
     		
     		Matrix matrix = new Matrix();
     		// System.out.println("Drawing at angle: " + rotation);

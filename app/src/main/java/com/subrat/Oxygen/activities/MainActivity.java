@@ -25,8 +25,6 @@ public class MainActivity extends Activity {
         System.loadLibrary("liquidfun_jni");
         
         initializeMain();
-
-        MathUtils.resources = getResources();
     }
 
     private void initializeMain() {

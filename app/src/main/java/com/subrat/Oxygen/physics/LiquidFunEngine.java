@@ -97,13 +97,13 @@ public class LiquidFunEngine {
 		PointF endPointInWorld = new PointF(line.getEnd().x, OxygenActivity.getWorldHeight() - line.getEnd().y);
 		
 		PolygonShape lineShape = new PolygonShape();
-		float length = MathUtils.getDistance(line.getStart(), line.getEnd());
+		float length = MathUtils.getMathUtils().getDistance(line.getStart(), line.getEnd());
 		lineShape.setAsBox(length / 2, Configuration.LINE_THICKNESS/2);
 		
 		BodyDef lineBodyDef = new BodyDef();
 		lineBodyDef.setType(BodyType.staticBody);
 		lineBodyDef.setPosition((startPointInWorld.x + endPointInWorld.x) / 2, (startPointInWorld.y + endPointInWorld.y) / 2);
-		lineBodyDef.setAngle(MathUtils.getRadian(startPointInWorld, endPointInWorld));
+		lineBodyDef.setAngle(MathUtils.getMathUtils().getRadian(startPointInWorld, endPointInWorld));
 
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.setShape(lineShape);
@@ -126,7 +126,7 @@ public class LiquidFunEngine {
 		PointF centerInCanvas = new PointF(circleBody.getPositionX(), OxygenActivity.getWorldHeight() - circleBody.getPositionY());
 		physicsCircle.setCenter(centerInCanvas);
 		float rad = circleBody.getAngle();
-		int deg = (int)( (rad * -180F) / MathUtils.getPI() );
+		int deg = (int)( (rad * -180F) / MathUtils.getMathUtils().getPI() );
 		physicsCircle.setRotation(deg);
 	}
 	
@@ -152,7 +152,7 @@ public class LiquidFunEngine {
 		Body lineBody = objectList.get(line.getObjectId());
 		lineBody.setTransform((startPointInWorld.x + endPointInWorld.x) / 2,
 				              (startPointInWorld.y + endPointInWorld.y) / 2,
-				              MathUtils.getRadian(startPointInWorld, endPointInWorld));
+				              MathUtils.getMathUtils().getRadian(startPointInWorld, endPointInWorld));
 	}
 	
 	public void createParticleSystem() {
@@ -184,7 +184,7 @@ public class LiquidFunEngine {
 	}
 	
 	public void addWater() {
-		float shift = MathUtils.getRandom(OxygenActivity.getWorldWidth() / 5, (OxygenActivity.getWorldWidth() * 3) / 5);
+		float shift = MathUtils.getMathUtils().getRandom(OxygenActivity.getWorldWidth() / 5, (OxygenActivity.getWorldWidth() * 3) / 5);
 		for (int x = 1; x < 5; ++x) {
 			for (int y = 1; y < 5; ++y) {
         		ParticleDef particleDef = new ParticleDef();

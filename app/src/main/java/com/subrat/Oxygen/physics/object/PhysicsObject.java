@@ -25,6 +25,16 @@ public abstract class PhysicsObject {
     public int getObjectId() { return objectId; }
     public void setObjectId(int id) { objectId = id; }
 
+    private int engineRefId;
+
+    public int getEngineRefId() {
+        return engineRefId;
+    }
+
+    public void setEngineRefId(int engineRefId) {
+        this.engineRefId = engineRefId;
+    }
+
     public abstract void updatePosition();
 
 

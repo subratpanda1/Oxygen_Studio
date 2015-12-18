@@ -49,10 +49,8 @@ public class OxygenActivity extends Activity {
 
         context = this;
 
-        if (updateObjectsInAThread == null) {
-            updateObjectsInAThread = new UpdateObjectsInAThread(this, oxygenView);
-        }
-        
+        updateObjectsInAThread = new UpdateObjectsInAThread(this, oxygenView);
+
         onClickListener = new Button.OnClickListener() {
             public void onClick(View view) {
                 PhysicsManager.getPhysicsManager().addWater();
