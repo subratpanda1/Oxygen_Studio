@@ -1,4 +1,4 @@
-package com.subrat.Oxygen.objects.interfaces;
+package com.subrat.Oxygen.interfaces;
 
 import android.graphics.PointF;
 

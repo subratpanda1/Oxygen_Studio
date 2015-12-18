@@ -1,13 +1,15 @@
-package com.subrat.Oxygen.objects.drawableObject;
+package com.subrat.Oxygen.graphics.object;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 
-import com.subrat.Oxygen.objects.interfaces.LineInterface;
+import com.subrat.Oxygen.interfaces.LineInterface;
+import com.subrat.Oxygen.physics.object.PhysicsLine;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
+import com.subrat.Oxygen.utilities.ObjectMapper;
 
 /**
  * Created by subrat.panda on 18/12/15.
@@ -49,5 +51,11 @@ public class DrawableLine extends DrawableObject implements LineInterface {
         PointF endPixel = MathUtils.getPixelBasedPointFromMeterBasedPoint(end);
         canvas.drawLine(startPixel.x, startPixel.y, endPixel.x, endPixel.y, getLinePainter());
         return true;
+    }
+
+    public void editLine(PointF start, PointF end) {
+        setEndPoints(start, end);
+
+        ((PhysicsLine)ObjectMapper.getObjectMapper().getPhysicsObjectFromDrawableObject(this)).editLine(start, end);
     }
 }

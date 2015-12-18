@@ -1,15 +1,11 @@
-package com.subrat.Oxygen.objects.physicsObject;
+package com.subrat.Oxygen.physics.object;
 
 import android.graphics.PointF;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
-import com.subrat.Oxygen.objects.abstractObject.ObjectBuilder;
-import com.subrat.Oxygen.objects.drawableObject.DrawableCircle;
-import com.subrat.Oxygen.objects.interfaces.LineInterface;
+import com.subrat.Oxygen.interfaces.LineInterface;
+import com.subrat.Oxygen.physics.PhysicsManager;
 import com.subrat.Oxygen.utilities.Configuration;
-import com.subrat.Oxygen.utilities.MathUtils;
-
-import java.util.ArrayList;
 
 /**
  * Created by subrat.panda on 18/12/15.
@@ -50,9 +46,7 @@ public class PhysicsLine extends PhysicsObject implements LineInterface {
     public void editLine(PointF start, PointF end) {
         setEndPoints(start, end);
 
-        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            OxygenActivity.getPhysicsEngine().editLine(this);
-        }
+        PhysicsManager.getPhysicsManager().editLine(this);
     }
 
     public void updatePosition() {

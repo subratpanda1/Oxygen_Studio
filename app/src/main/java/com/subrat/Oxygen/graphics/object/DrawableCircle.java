@@ -1,10 +1,10 @@
-package com.subrat.Oxygen.objects.drawableObject;
+package com.subrat.Oxygen.graphics.object;
 
 import android.graphics.*;
 
 import com.subrat.Oxygen.R;
 import com.subrat.Oxygen.activities.OxygenActivity;
-import com.subrat.Oxygen.objects.interfaces.CircleInterface;
+import com.subrat.Oxygen.interfaces.CircleInterface;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 

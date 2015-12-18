@@ -1,14 +1,16 @@
-package com.subrat.Oxygen.hadaGraphicsEngine;
+package com.subrat.Oxygen.graphics;
 
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PointF;
 
-import com.subrat.Oxygen.activities.OxygenActivity;
-import com.subrat.Oxygen.hadaPhysicsEngine.HadaPhysicsEngine;
-import com.subrat.Oxygen.objects.ObjectMapper;
-import com.subrat.Oxygen.objects.abstractObject.ObjectBuilder;
-import com.subrat.Oxygen.objects.drawableObject.DrawableCircle;
-import com.subrat.Oxygen.objects.drawableObject.DrawableLine;
-import com.subrat.Oxygen.objects.drawableObject.DrawableObject;
+import com.subrat.Oxygen.physics.HadaPhysicsEngine;
+import com.subrat.Oxygen.physics.PhysicsManager;
+import com.subrat.Oxygen.utilities.ObjectMapper;
+import com.subrat.Oxygen.graphics.object.DrawableCircle;
+import com.subrat.Oxygen.graphics.object.DrawableLine;
+import com.subrat.Oxygen.graphics.object.DrawableObject;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 
@@ -18,6 +20,24 @@ import java.util.ArrayList;
  * Created by subrat.panda on 18/12/15.
  */
 public class HadaGraphicsEngine {
+    private static ArrayList<DrawableObject> objectList = new ArrayList<DrawableObject>();
+    public static ArrayList<DrawableObject> getObjectList() { return objectList; }
+
+    private static ArrayList<DrawableCircle> particleList = new ArrayList<DrawableCircle>();
+    public static ArrayList<DrawableCircle> getParticleList() { return particleList; }
+
+    private static Paint waterPainter = null;
+
+    protected static Paint getWaterPainter() {
+        if (waterPainter == null) {
+            waterPainter = new Paint();
+            waterPainter.setColor(Color.CYAN);
+            waterPainter.setStyle(Paint.Style.STROKE);
+            waterPainter.setStrokeWidth(MathUtils.getPixelFromMeter(Configuration.PARTICLE_RADIUS / 4));
+        }
+        return waterPainter;
+    }
+
     private static HadaGraphicsEngine hadaGraphicsEngine = null;
 
     public static HadaGraphicsEngine getHadaGraphicsEngine() {
@@ -52,7 +72,7 @@ public class HadaGraphicsEngine {
 
         // Do not create if overlapping with other circles
         DrawableCircle drawableCircle = HadaGraphicsEngine.getHadaGraphicsEngine().constructDrawableCircle(points);
-        for (DrawableObject object : DrawableObject.getObjectList()) {
+        for (DrawableObject object : getObjectList()) {
             if (HadaPhysicsEngine.getHadaPhysicsEngine().checkOverlap(ObjectMapper.getObjectMapper().getPhysicsObjectFromDrawableObject(drawableCircle),
                     ObjectMapper.getObjectMapper().getPhysicsObjectFromDrawableObject(object))) {
                 return false;
@@ -90,9 +110,9 @@ public class HadaGraphicsEngine {
     public DrawableCircle createDrawableCircle(ArrayList<PointF> points) {
         DrawableCircle drawableCircle = constructDrawableCircle(points);
         drawableCircle.setObjectId(ObjectBuilder.getNextObjectId());
-        DrawableObject.getObjectList().add(drawableCircle);
+        getObjectList().add(drawableCircle);
 
-        HadaPhysicsEngine.getHadaPhysicsEngine().createPhysicsCircle(drawableCircle.getCenter(), drawableCircle.getRadius(), drawableCircle.getRotation());
+        PhysicsManager.getPhysicsManager().createPhysicsCircle(drawableCircle.getCenter(), drawableCircle.getRadius(), drawableCircle.getRotation());
 
         return drawableCircle;
     }
@@ -132,10 +152,32 @@ public class HadaGraphicsEngine {
     public DrawableLine createDrawableLine(ArrayList<PointF> points) {
         DrawableLine line = constructDrawableLine(points);
         line.setObjectId(ObjectBuilder.getNextObjectId());
-        DrawableObject.getObjectList().add(line);
+        getObjectList().add(line);
 
-        HadaPhysicsEngine.getHadaPhysicsEngine().createPhysicsLine(line.getStart(), line.getEnd());
+        PhysicsManager.getPhysicsManager().createPhysicsLine(line.getStart(), line.getEnd());
 
         return line;
+    }
+
+    public DrawableLine createDrawableLine(PointF start, PointF end) {
+        DrawableLine line = constructDrawableLine(start, end);
+        line.setObjectId(ObjectBuilder.getNextObjectId());
+        getObjectList().add(line);
+
+        PhysicsManager.getPhysicsManager().createPhysicsLine(line.getStart(), line.getEnd());
+
+        return line;
+    }
+
+    public static void drawParticles(Canvas canvas) {
+        float[] points = new float[2 * particleList.size()];
+        int i = 0;
+        for (DrawableCircle drawableCircle : particleList) {
+            points[i++] = MathUtils.getPixelFromMeter(drawableCircle.getCenter().x);
+            points[i++] = MathUtils.getPixelFromMeter(drawableCircle.getCenter().y);
+        }
+
+        canvas.drawPoints(points, getWaterPainter());
+        // canvas.drawVertices(Canvas.VertexMode.TRIANGLES, points.length, points, 0, null, 0, null, 0, null, 0, 0, getWaterPainter());
     }
 }

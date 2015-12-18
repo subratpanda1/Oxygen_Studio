@@ -9,8 +9,8 @@ import android.os.Message;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
 import com.subrat.Oxygen.customviews.OxygenView;
-import com.subrat.Oxygen.objects.abstractObject.Object;
-import com.subrat.Oxygen.objects.drawableObject.DrawableCircle;
+import com.subrat.Oxygen.physics.PhysicsManager;
+import com.subrat.Oxygen.physics.object.PhysicsCircle;
 import com.subrat.Oxygen.utilities.Configuration;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -106,7 +106,7 @@ public class UpdateObjectsInAThread {
             public void run() {
             	if (OxygenActivity.getContext() == null) return;
                 updateSensorReading();
-                Object.updateAllObjects();
+                PhysicsManager.getPhysicsManager().updateAllObjects();
                 threadHandler.sendMessage(threadHandler.obtainMessage());
                 repeatHandler.postDelayed(repeatRunnable, (int)Configuration.REFRESH_INTERVAL * 1000/*in msec*/);
             }
@@ -131,14 +131,10 @@ public class UpdateObjectsInAThread {
         float convertedAccelValuesY = accelValues[1];
 
         PointF gravity = new PointF(-convertedAccelValuesX, convertedAccelValuesY);
-        DrawableCircle.setGravity(gravity);
+        PhysicsCircle.setGravity(gravity);
         
         PointF gravityForEngine = new PointF(-convertedAccelValuesX, -convertedAccelValuesY);
-        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-        	if (OxygenActivity.getPhysicsEngine() != null) {
-        		OxygenActivity.getPhysicsEngine().setGravity(gravityForEngine);
-        	}
-        }
+        PhysicsManager.getPhysicsManager().setGravity(gravityForEngine);
         // float[] magnetValues = mShakeDetector.magnetValues;
     }
 
@@ -149,7 +145,7 @@ public class UpdateObjectsInAThread {
         mShakeDetector.setOnShakeListener(new ShakeDetector.OnShakeListener() {
             @Override
             public void onShake(int count) {
-                Object.resetVelocities();
+                PhysicsManager.getPhysicsManager().resetVelocities();
             }
         });
     }

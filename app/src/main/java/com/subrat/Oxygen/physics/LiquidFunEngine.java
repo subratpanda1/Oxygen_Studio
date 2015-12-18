@@ -1,4 +1,4 @@
-package com.subrat.Oxygen.backendRoutines;
+package com.subrat.Oxygen.physics;
 
 import java.util.ArrayList;
 
@@ -6,10 +6,9 @@ import android.graphics.PointF;
 import android.util.SparseArray;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
-import com.subrat.Oxygen.objects.drawableObject.DrawableCircle;
-import com.subrat.Oxygen.objects.abstractObject.Line;
-import com.subrat.Oxygen.objects.physicsObject.PhysicsCircle;
-import com.subrat.Oxygen.objects.physicsObject.PhysicsLine;
+import com.subrat.Oxygen.graphics.object.DrawableCircle;
+import com.subrat.Oxygen.physics.object.PhysicsCircle;
+import com.subrat.Oxygen.physics.object.PhysicsLine;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 import com.google.fpl.liquidfun.BodyDef;
@@ -24,13 +23,13 @@ import com.google.fpl.liquidfun.FixtureDef;
 import com.google.fpl.liquidfun.World;
 import com.google.fpl.liquidfun.Body;
 
-public class PhysicsEngine {
+public class LiquidFunEngine {
 	private World world;
 	private ParticleSystem particleSystem;
 
 	private SparseArray<Body> objectList = new SparseArray<Body>();
 	
-	public PhysicsEngine() {
+	public LiquidFunEngine() {
 		initializeWorld();
 		createParticleSystem();
 	}
@@ -204,7 +203,7 @@ public class PhysicsEngine {
 		for (int i = 0; i < particleSystem.getParticleCount(); ++i) {
 			PointF center = new PointF(particleSystem.getParticlePositionX(i), OxygenActivity.getWorldHeight() - particleSystem.getParticlePositionY(i));
 			if (particleList.size() <= i) {
-				DrawableCircle drawableCircle = new DrawableCircle(center, Configuration.PARTICLE_RADIUS, true);
+				DrawableCircle drawableCircle = new DrawableCircle(center, Configuration.PARTICLE_RADIUS, 0, true);
 				particleList.add(drawableCircle);
 			} else {
 				DrawableCircle drawableCircle = particleList.get(i);

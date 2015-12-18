@@ -4,8 +4,8 @@ import android.content.res.Resources;
 import android.graphics.PointF;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
-import com.subrat.Oxygen.objects.interfaces.CircleInterface;
-import com.subrat.Oxygen.objects.interfaces.LineInterface;
+import com.subrat.Oxygen.interfaces.CircleInterface;
+import com.subrat.Oxygen.interfaces.LineInterface;
 
 import java.util.ArrayList;
 import java.util.Random;

@@ -9,10 +9,11 @@ import android.view.View;
 import android.widget.Button;
 
 import com.subrat.Oxygen.R;
-import com.subrat.Oxygen.backendRoutines.PhysicsEngine;
+import com.subrat.Oxygen.graphics.HadaGraphicsEngine;
+import com.subrat.Oxygen.physics.LiquidFunEngine;
 import com.subrat.Oxygen.backendRoutines.UpdateObjectsInAThread;
 import com.subrat.Oxygen.customviews.OxygenView;
-import com.subrat.Oxygen.objects.abstractObject.Object;
+import com.subrat.Oxygen.physics.PhysicsManager;
 import com.subrat.Oxygen.utilities.Configuration;
 
 /**
@@ -25,8 +26,6 @@ public class OxygenActivity extends Activity {
 	private static float worldWidth = 0;   // In meter
 	private static float worldHeight = 0F; // In meter
 	
-	private static PhysicsEngine physicsEngine = null;
-
     private int alertSecondsCounter = 0;
     Runnable runnable;
     OxygenView oxygenView;
@@ -50,19 +49,13 @@ public class OxygenActivity extends Activity {
 
         context = this;
 
-        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-        	physicsEngine = new PhysicsEngine();
-        }
-
         if (updateObjectsInAThread == null) {
             updateObjectsInAThread = new UpdateObjectsInAThread(this, oxygenView);
         }
         
         onClickListener = new Button.OnClickListener() {
             public void onClick(View view) {
-            	if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-                	physicsEngine.addWater();
-                }
+                PhysicsManager.getPhysicsManager().addWater();
             }
         };
         
@@ -77,8 +70,6 @@ public class OxygenActivity extends Activity {
 
     public static Context getContext() { return context; }
     
-    public static PhysicsEngine getPhysicsEngine() { return physicsEngine; }
-
     public void stopSimulation() {
         updateObjectsInAThread.stopThread();
     }
@@ -90,14 +81,11 @@ public class OxygenActivity extends Activity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Object.getObjectList().clear();
-        Object.getParticleList().clear();
+        HadaGraphicsEngine.getHadaGraphicsEngine().getObjectList().clear();
+        HadaGraphicsEngine.getHadaGraphicsEngine().getParticleList().clear();
         context = null;
-        
-        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-        	physicsEngine.clearWorld();
-        	physicsEngine = null;
-        }
+
+        PhysicsManager.getPhysicsManager().clearWorld();
 
         finish();
     }

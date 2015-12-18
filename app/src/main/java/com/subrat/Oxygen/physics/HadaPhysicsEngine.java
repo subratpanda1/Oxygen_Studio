@@ -1,12 +1,13 @@
-package com.subrat.Oxygen.hadaPhysicsEngine;
+package com.subrat.Oxygen.physics;
 
 import android.graphics.PointF;
 
-import com.subrat.Oxygen.activities.OxygenActivity;
-import com.subrat.Oxygen.objects.ObjectMapper;
-import com.subrat.Oxygen.objects.physicsObject.PhysicsCircle;
-import com.subrat.Oxygen.objects.physicsObject.PhysicsLine;
-import com.subrat.Oxygen.objects.physicsObject.PhysicsObject;
+import com.subrat.Oxygen.graphics.HadaGraphicsEngine;
+import com.subrat.Oxygen.utilities.ObjectMapper;
+import com.subrat.Oxygen.graphics.object.DrawableLine;
+import com.subrat.Oxygen.physics.object.PhysicsCircle;
+import com.subrat.Oxygen.physics.object.PhysicsLine;
+import com.subrat.Oxygen.physics.object.PhysicsObject;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 
@@ -192,7 +193,8 @@ public class HadaPhysicsEngine {
             if (threshold < 0) {
                 float circle1Speed = MathUtils.getAbsolute(circle1.getVelocity());
                 float circle2Speed = MathUtils.getAbsolute(circle2.getVelocity());
-                PhysicsLine line = getTemporaryLine(circle1.getCenter(), circle2.getCenter());
+                DrawableLine drawableLine = HadaGraphicsEngine.getHadaGraphicsEngine().constructDrawableLine(circle1.getCenter(), circle2.getCenter());
+                PhysicsLine line = (PhysicsLine)ObjectMapper.getObjectMapper().getPhysicsObjectFromDrawableObject(drawableLine);
                 PointF circle1TransformedCenter = MathUtils.transformPointToAxis(circle1.getCenter(), line);
                 PointF circle2TransformedCenter = MathUtils.transformPointToAxis(circle2.getCenter(), line);
                 float circle1Shift = (circle1Speed / (circle1Speed + circle2Speed)) * threshold; // threshold is -ve, so shift is -ve
@@ -217,99 +219,81 @@ public class HadaPhysicsEngine {
             float cosTheta = MathUtils.getCosTheta(line.getStart(), line.getEnd());
 
             // Calculate projected velocities with the collision tangent as x axis
-            float projectedVelocityX = this.getVelocity().x * cosTheta + this.getVelocity().y * sinTheta;
-            float projectedVelocityY = this.getVelocity().y * cosTheta - this.getVelocity().x * sinTheta;
+            float projectedVelocityX = circle.getVelocity().x * cosTheta + circle.getVelocity().y * sinTheta;
+            float projectedVelocityY = circle.getVelocity().y * cosTheta - circle.getVelocity().x * sinTheta;
 
             // Compute post-collision velocities (Note that velocity along projected Y axis will be inverted)
             projectedVelocityY = -1F * Configuration.RESTITUTION * projectedVelocityY;
 
             // Calculate back projected velocities to normal axis
-            this.getVelocity().x = projectedVelocityX * cosTheta - projectedVelocityY * sinTheta;
-            this.getVelocity().y = projectedVelocityY * cosTheta + projectedVelocityX * sinTheta;
+            circle.getVelocity().x = projectedVelocityX * cosTheta - projectedVelocityY * sinTheta;
+            circle.getVelocity().y = projectedVelocityY * cosTheta + projectedVelocityX * sinTheta;
 
             // Also update circle position so that circle does not sink through the line
-            if (Math.abs(transformedCenter.y) < this.getRadius()) {
-                transformedCenter.y = transformedCenter.y > 0 ? this.getRadius() : -this.getRadius();
+            if (Math.abs(transformedCenter.y) < circle.getRadius()) {
+                transformedCenter.y = transformedCenter.y > 0 ? circle.getRadius() : -circle.getRadius();
                 PointF backTransformedCenter = MathUtils.transformPointFromAxis(transformedCenter, line);
-                this.setCenter(backTransformedCenter);
+                circle.setCenter(backTransformedCenter);
             }
         } else {
             // In this case, circle is colliding with the end point of line. Treat it as a collision with line
             // orthogonal to line joining center of circle and end point of line.
 
             // If circle is going to hit the starting corner
-            float threshold = MathUtils.getDistance(this.getCenter(), line.getStart()) - this.radius;
+            float threshold = MathUtils.getDistance(circle.getCenter(), line.getStart()) - circle.getRadius();
             if (threshold < Configuration.COLLISION_THRESHOLD) {
-                float sinTheta = MathUtils.getSinTheta(this.getCenter(), line.getStart());
-                float cosTheta = MathUtils.getCosTheta(this.getCenter(), line.getStart());
+                float sinTheta = MathUtils.getSinTheta(circle.getCenter(), line.getStart());
+                float cosTheta = MathUtils.getCosTheta(circle.getCenter(), line.getStart());
 
                 // Calculate projected velocities with the line joining circle center and endpoint as x axis
-                float projectedVelocityX = this.getVelocity().x * cosTheta + this.getVelocity().y * sinTheta;
-                float projectedVelocityY = this.getVelocity().y * cosTheta - this.getVelocity().x * sinTheta;
+                float projectedVelocityX = circle.getVelocity().x * cosTheta + circle.getVelocity().y * sinTheta;
+                float projectedVelocityY = circle.getVelocity().y * cosTheta - circle.getVelocity().x * sinTheta;
 
                 // Compute post-collision velocities (Note that velocity along projected X axis will be inverted)
                 projectedVelocityX = -1F * Configuration.RESTITUTION * projectedVelocityX;
 
                 // Calculate back projected velocities to normal axis
-                this.getVelocity().x = projectedVelocityX * cosTheta - projectedVelocityY * sinTheta;
-                this.getVelocity().y = projectedVelocityY * cosTheta + projectedVelocityX * sinTheta;
+                circle.getVelocity().x = projectedVelocityX * cosTheta - projectedVelocityY * sinTheta;
+                circle.getVelocity().y = projectedVelocityY * cosTheta + projectedVelocityX * sinTheta;
 
                 // Also update circle position so that circle does not sink through the line
                 if (threshold < 0) {
-                    Line line1 = Line.getTemporaryLine(line.getStart(), this.getCenter());
-                    PointF transformedCenter1 = MathUtils.transformPointToAxis(this.getCenter(), line1);
-                    transformedCenter1.x = this.getRadius();  // transformedCenter.y should be approximately 0;
+                    DrawableLine drawableLine = HadaGraphicsEngine.getHadaGraphicsEngine().constructDrawableLine(line.getStart(), circle.getCenter());
+                    PhysicsLine line1 = (PhysicsLine)ObjectMapper.getObjectMapper().getPhysicsObjectFromDrawableObject(drawableLine);
+                    PointF transformedCenter1 = MathUtils.transformPointToAxis(circle.getCenter(), line1);
+                    transformedCenter1.x = circle.getRadius();  // transformedCenter.y should be approximately 0;
                     PointF backTransformedCenter = MathUtils.transformPointFromAxis(transformedCenter1, line1);
-                    this.setCenter(backTransformedCenter);
+                    circle.setCenter(backTransformedCenter);
                 }
             }
 
             // If circle is going to hit the ending corner
-            threshold = MathUtils.getDistance(this.getCenter(), line.getEnd()) - this.radius;
+            threshold = MathUtils.getDistance(circle.getCenter(), line.getEnd()) - circle.getRadius();
             if (threshold < Configuration.COLLISION_THRESHOLD) {
-                float sinTheta = MathUtils.getSinTheta(this.getCenter(), line.getEnd());
-                float cosTheta = MathUtils.getCosTheta(this.getCenter(), line.getEnd());
+                float sinTheta = MathUtils.getSinTheta(circle.getCenter(), line.getEnd());
+                float cosTheta = MathUtils.getCosTheta(circle.getCenter(), line.getEnd());
 
                 // Calculate projected velocities with the line joining circle center and endpoint as x axis
-                float projectedVelocityX = this.getVelocity().x * cosTheta + this.getVelocity().y * sinTheta;
-                float projectedVelocityY = this.getVelocity().y * cosTheta - this.getVelocity().x * sinTheta;
+                float projectedVelocityX = circle.getVelocity().x * cosTheta + circle.getVelocity().y * sinTheta;
+                float projectedVelocityY = circle.getVelocity().y * cosTheta - circle.getVelocity().x * sinTheta;
 
                 // Compute post-collision velocities (Note that velocity along projected X axis will be inverted)
                 projectedVelocityX = -1F * Configuration.RESTITUTION * projectedVelocityX;
 
                 // Calculate back projected velocities to normal axis
-                this.getVelocity().x = projectedVelocityX * cosTheta - projectedVelocityY * sinTheta;
-                this.getVelocity().y = projectedVelocityY * cosTheta + projectedVelocityX * sinTheta;
+                circle.getVelocity().x = projectedVelocityX * cosTheta - projectedVelocityY * sinTheta;
+                circle.getVelocity().y = projectedVelocityY * cosTheta + projectedVelocityX * sinTheta;
 
                 // Also update circle position so that circle does not sink through the line
                 if (threshold < 0) {
-                    Line line1 = Line.getTemporaryLine(line.getEnd(), this.getCenter());
-                    PointF transformedCenter1 = MathUtils.transformPointToAxis(this.getCenter(), line1);
-                    transformedCenter1.x = this.getRadius();  // transformedCenter.y should be approximately 0;
+                    DrawableLine drawableLine = HadaGraphicsEngine.getHadaGraphicsEngine().constructDrawableLine(line.getEnd(), circle.getCenter());
+                    PhysicsLine line1 = (PhysicsLine)ObjectMapper.getObjectMapper().getPhysicsObjectFromDrawableObject(drawableLine);
+                    PointF transformedCenter1 = MathUtils.transformPointToAxis(circle.getCenter(), line1);
+                    transformedCenter1.x = circle.getRadius();  // transformedCenter.y should be approximately 0;
                     PointF backTransformedCenter = MathUtils.transformPointFromAxis(transformedCenter1, line1);
-                    this.setCenter(backTransformedCenter);
+                    circle.setCenter(backTransformedCenter);
                 }
             }
         }
-    }
-
-    public PhysicsCircle createPhysicsCircle(PointF center, float radius, int rotation) {
-        PhysicsCircle physicsCircle = new PhysicsCircle(center, radius, rotation);
-
-        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            OxygenActivity.getPhysicsEngine().createCircle(ObjectMapper.getObjectMapper().getPhysicsObjectFromDrawableObject(drawableCircle);
-        }
-
-        return physicsCircle;
-    }
-
-    public PhysicsLine createPhysicsLine(PointF start, PointF end) {
-        PhysicsLine line = new PhysicsLine(start, end);
-
-        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            OxygenActivity.getPhysicsEngine().createLine(line);
-        }
-
-        return line;
     }
 }

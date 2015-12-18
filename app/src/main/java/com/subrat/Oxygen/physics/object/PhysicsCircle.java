@@ -1,8 +1,8 @@
-package com.subrat.Oxygen.objects.physicsObject;
+package com.subrat.Oxygen.physics.object;
 
 import android.graphics.PointF;
 
-import com.subrat.Oxygen.objects.interfaces.CircleInterface;
+import com.subrat.Oxygen.interfaces.CircleInterface;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 
