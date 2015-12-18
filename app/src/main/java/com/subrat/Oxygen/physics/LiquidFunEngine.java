@@ -52,9 +52,9 @@ public class LiquidFunEngine {
 		world = new World(0, 0);
 	}
 	
-	public void stepWorld() {
+	public void stepWorld(float stepDuration) {
 		if (world == null) return;
-		world.step(Configuration.REFRESH_INTERVAL,
+		world.step(stepDuration,
 				   Configuration.VELOCITY_ITERATIONS,
 				   Configuration.POSITION_ITERATIONS,
 				   Configuration.PARTICLE_ITERATIONS);

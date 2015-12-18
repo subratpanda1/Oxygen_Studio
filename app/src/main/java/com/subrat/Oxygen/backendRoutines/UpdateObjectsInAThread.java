@@ -106,7 +106,7 @@ public class UpdateObjectsInAThread {
             public void run() {
             	if (OxygenActivity.getContext() == null) return;
                 updateSensorReading();
-                PhysicsManager.getPhysicsManager().updateAllObjects();
+                PhysicsManager.getPhysicsManager().step(Configuration.REFRESH_INTERVAL);
                 threadHandler.sendMessage(threadHandler.obtainMessage());
                 repeatHandler.postDelayed(repeatRunnable, (int)Configuration.REFRESH_INTERVAL * 1000/*in msec*/);
             }

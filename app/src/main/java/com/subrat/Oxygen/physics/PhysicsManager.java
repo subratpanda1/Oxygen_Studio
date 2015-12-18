@@ -39,9 +39,9 @@ public class PhysicsManager {
         return liquidFunEngine;
     }
 
-    public void updateAllObjects() {
+    public void step(float stepDuration) {
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            liquidFunEngine.stepWorld();
+            liquidFunEngine.stepWorld(stepDuration);
             for (PhysicsObject object : getObjectList()) {
                 if (object instanceof PhysicsCircle) {
                     liquidFunEngine.updateCircle((PhysicsCircle) object);
