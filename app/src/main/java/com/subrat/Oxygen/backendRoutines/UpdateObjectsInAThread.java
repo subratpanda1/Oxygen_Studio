@@ -9,8 +9,8 @@ import android.os.Message;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
 import com.subrat.Oxygen.customviews.OxygenView;
-import com.subrat.Oxygen.objects.*;
-import com.subrat.Oxygen.objects.Object;
+import com.subrat.Oxygen.objects.abstractObject.Object;
+import com.subrat.Oxygen.objects.drawableObject.DrawableCircle;
 import com.subrat.Oxygen.utilities.Configuration;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -131,7 +131,7 @@ public class UpdateObjectsInAThread {
         float convertedAccelValuesY = accelValues[1];
 
         PointF gravity = new PointF(-convertedAccelValuesX, convertedAccelValuesY);
-        Circle.setGravity(gravity);
+        DrawableCircle.setGravity(gravity);
         
         PointF gravityForEngine = new PointF(-convertedAccelValuesX, -convertedAccelValuesY);
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {

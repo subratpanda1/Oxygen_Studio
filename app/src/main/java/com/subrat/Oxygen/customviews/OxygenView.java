@@ -7,8 +7,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
-import com.subrat.Oxygen.objects.ObjectBuilder;
-import com.subrat.Oxygen.objects.Object;
+import com.subrat.Oxygen.objects.abstractObject.ObjectBuilder;
+import com.subrat.Oxygen.objects.abstractObject.Object;
 
 import java.util.ArrayList;
 
@@ -56,7 +56,7 @@ public class OxygenView extends View implements View.OnTouchListener {
         }
         
         /*
-        for (Circle particle : Object.getParticleList()) {
+        for (DrawableCircle particle : Object.getParticleList()) {
         	particle.draw(canvas);
         }
         */

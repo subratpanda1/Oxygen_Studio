@@ -4,8 +4,8 @@ import android.content.res.Resources;
 import android.graphics.PointF;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
-import com.subrat.Oxygen.objects.Circle;
-import com.subrat.Oxygen.objects.Line;
+import com.subrat.Oxygen.objects.interfaces.CircleInterface;
+import com.subrat.Oxygen.objects.interfaces.LineInterface;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -36,7 +36,7 @@ public class MathUtils {
         return (float) Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
     }
 
-    public static float getDistance(PointF a, Line b) {
+    public static float getDistance(PointF a, LineInterface b) {
         float term1 = (b.getEnd().x - b.getStart().x);
         float term2 = (b.getStart().x - a.x);
         float term3 = (b.getEnd().y - b.getStart().y);
@@ -48,7 +48,7 @@ public class MathUtils {
         return numerator / denominator;
     }
 
-    public static float getDistance(Circle a, Line b) {
+    public static float getDistance(CircleInterface a, LineInterface b) {
         return getDistance(a.getCenter(), b);
     }
     
@@ -114,7 +114,7 @@ public class MathUtils {
         return new PointF(point.x, point.y);
     }
 
-    public static PointF transformPointToAxis(PointF point, Line line) {
+    public static PointF transformPointToAxis(PointF point, LineInterface line) {
         PointF start = line.getStart();
         PointF end = line.getEnd();
         float sinTheta = getSinTheta(start, end);
@@ -131,7 +131,7 @@ public class MathUtils {
         return new PointF(tmpXX, tmpYY);
     }
 
-    public static PointF transformPointFromAxis(PointF point, Line line) {
+    public static PointF transformPointFromAxis(PointF point, LineInterface line) {
         PointF start = line.getStart();
         PointF end = line.getEnd();
         float sinTheta = getSinTheta(start, end);

@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.view.View;
 import android.widget.Button;
 
@@ -13,7 +12,7 @@ import com.subrat.Oxygen.R;
 import com.subrat.Oxygen.backendRoutines.PhysicsEngine;
 import com.subrat.Oxygen.backendRoutines.UpdateObjectsInAThread;
 import com.subrat.Oxygen.customviews.OxygenView;
-import com.subrat.Oxygen.objects.Object;
+import com.subrat.Oxygen.objects.abstractObject.Object;
 import com.subrat.Oxygen.utilities.Configuration;
 
 /**

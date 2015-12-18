@@ -1,8 +1,9 @@
-package com.subrat.Oxygen.objects;
+package com.subrat.Oxygen.objects.abstractObject;
 
 import android.graphics.PointF;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
+import com.subrat.Oxygen.objects.drawableObject.DrawableCircle;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 
@@ -21,8 +22,8 @@ public class ObjectBuilder {
             return Line.getLine(points);
         } 
         
-        else if (Circle.detectCircle(points)) {
-            return Circle.getCircle(points);
+        else if (DrawableCircle.detectCircle(points)) {
+            return DrawableCircle.getCircle(points);
         }
 
         return null;

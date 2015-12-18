@@ -6,8 +6,10 @@ import android.graphics.PointF;
 import android.util.SparseArray;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
-import com.subrat.Oxygen.objects.Circle;
-import com.subrat.Oxygen.objects.Line;
+import com.subrat.Oxygen.objects.drawableObject.DrawableCircle;
+import com.subrat.Oxygen.objects.abstractObject.Line;
+import com.subrat.Oxygen.objects.physicsObject.PhysicsCircle;
+import com.subrat.Oxygen.objects.physicsObject.PhysicsLine;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 import com.google.fpl.liquidfun.BodyDef;
@@ -63,12 +65,12 @@ public class PhysicsEngine {
 		world.setGravity(gravity.x, gravity.y);
 	}
 	
-	public void createCircle(Circle circle) {
-		PointF centerInWorld = new PointF(circle.getCenter().x, OxygenActivity.getWorldHeight() - circle.getCenter().y);
+	public void createCircle(PhysicsCircle drawableCircle) {
+		PointF centerInWorld = new PointF(drawableCircle.getCenter().x, OxygenActivity.getWorldHeight() - drawableCircle.getCenter().y);
 
 		CircleShape circleShape = new CircleShape();
 		circleShape.setPosition(0,0);
-		circleShape.setRadius(circle.getRadius());
+		circleShape.setRadius(drawableCircle.getRadius());
 		
 		BodyDef circleBodyDef = new BodyDef();
 		circleBodyDef.setType(BodyType.dynamicBody);
@@ -88,10 +90,10 @@ public class PhysicsEngine {
 		circleBodyDef.delete();
 		fixtureDef.delete();
 		
-		objectList.put(circle.getObjectId(), circleBody);
+		objectList.put(drawableCircle.getObjectId(), circleBody);
 	}
 	
-	public void createLine(Line line) {
+	public void createLine(PhysicsLine line) {
 		PointF startPointInWorld = new PointF(line.getStart().x, OxygenActivity.getWorldHeight() - line.getStart().y);
 		PointF endPointInWorld = new PointF(line.getEnd().x, OxygenActivity.getWorldHeight() - line.getEnd().y);
 		
@@ -119,32 +121,32 @@ public class PhysicsEngine {
 		objectList.put(line.getObjectId(), lineBody);
 	}
 	
-	public void updateCircle(Circle circle) {
-		Body circleBody = objectList.get(circle.getObjectId());
+	public void updateCircle(PhysicsCircle physicsCircle) {
+		Body circleBody = objectList.get(physicsCircle.getObjectId());
 		
 		PointF centerInCanvas = new PointF(circleBody.getPositionX(), OxygenActivity.getWorldHeight() - circleBody.getPositionY());
-		circle.setCenter(centerInCanvas);
+		physicsCircle.setCenter(centerInCanvas);
 		float rad = circleBody.getAngle();
 		int deg = (int)( (rad * -180F) / MathUtils.getPI() );
-		circle.setRotation(deg);
+		physicsCircle.setRotation(deg);
 	}
 	
-	public void editCircle(Circle circle) {
-		Body circleBody = objectList.get(circle.getObjectId());
+	public void editCircle(DrawableCircle drawableCircle) {
+		Body circleBody = objectList.get(drawableCircle.getObjectId());
 		
-		PointF centerInWorld = new PointF(circle.getCenter().x, OxygenActivity.getWorldHeight() - circle.getCenter().y);
+		PointF centerInWorld = new PointF(drawableCircle.getCenter().x, OxygenActivity.getWorldHeight() - drawableCircle.getCenter().y);
 		circleBody.setTransform(centerInWorld.x, centerInWorld.y, 0);
 		
 	}
 	
-	public void updateLine(Line line) {
+	public void updateLine(PhysicsLine line) {
 		// Body lineBody = objectList.get(line.getObjectId());
 		// Get edge points from line center and rotation
 		// PointF lineStartInCanvas
 		// PointF lineEndInCanvas
 	}
 	
-	public void editLine(Line line) {
+	public void editLine(PhysicsLine line) {
 		PointF startPointInWorld = new PointF(line.getStart().x, OxygenActivity.getWorldHeight() - line.getStart().y);
 		PointF endPointInWorld   = new PointF(line.getEnd().x,   OxygenActivity.getWorldHeight() - line.getEnd().y);
 		
@@ -197,16 +199,16 @@ public class PhysicsEngine {
 		}
 	}
 	
-	public void updateParticles(ArrayList<Circle> particleList) {
+	public void updateParticles(ArrayList<DrawableCircle> particleList) {
 		if (particleSystem == null) return;
 		for (int i = 0; i < particleSystem.getParticleCount(); ++i) {
 			PointF center = new PointF(particleSystem.getParticlePositionX(i), OxygenActivity.getWorldHeight() - particleSystem.getParticlePositionY(i));
 			if (particleList.size() <= i) {
-				Circle circle = new Circle(center, Configuration.PARTICLE_RADIUS, true);
-				particleList.add(circle);
+				DrawableCircle drawableCircle = new DrawableCircle(center, Configuration.PARTICLE_RADIUS, true);
+				particleList.add(drawableCircle);
 			} else {
-				Circle circle = particleList.get(i);
-				circle.setCenter(center);
+				DrawableCircle drawableCircle = particleList.get(i);
+				drawableCircle.setCenter(center);
 			}
 		}
 	}
