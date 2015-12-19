@@ -49,6 +49,9 @@ public class PhysicsObjectBuilder {
             createPhysicsLine(bottomLeft, bottomRight);
             createPhysicsLine(topLeft, bottomLeft);
             createPhysicsLine(topRight, bottomRight);
+            // createPhysicsLine(new PointF(0, 0), new PointF(3, 0));
+            // createPhysicsCircle(new PointF(1.5F, 3.5F), 0.3F, 0);
+            createPhysicsCircle(new PointF(1.5F, 4.5F), 0.3F, 0);
         } else {
             ((PhysicsLine) PhysicsManager.getPhysicsManager().getObjectList().get(0)).editLine(topLeft, topRight);
             ((PhysicsLine) PhysicsManager.getPhysicsManager().getObjectList().get(1)).editLine(bottomLeft, bottomRight);
@@ -97,10 +100,11 @@ public class PhysicsObjectBuilder {
 
     public PhysicsCircle createPhysicsCircle(PointF center, float radius, int rotation) {
         PhysicsCircle circle = constructPhysicsCircle(center, radius, rotation);
+        circle.setObjectId(getNextObjectId());
         PhysicsManager.getPhysicsManager().getObjectList().add(circle);
 
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            PhysicsManager.getPhysicsManager().getLiquidFunEngine().createCircle(circle);
+            PhysicsManager.getPhysicsManager().getLiquidFunEngine().createObjectInWorld(circle);
         }
 
         return circle;
@@ -108,10 +112,11 @@ public class PhysicsObjectBuilder {
 
     public PhysicsCircle createPhysicsCircle(ArrayList<PointF> points) {
         PhysicsCircle circle = constructPhysicsCircle(points);
+        circle.setObjectId(getNextObjectId());
         PhysicsManager.getPhysicsManager().getObjectList().add(circle);
 
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            PhysicsManager.getPhysicsManager().getLiquidFunEngine().createCircle(circle);
+            PhysicsManager.getPhysicsManager().getLiquidFunEngine().createObjectInWorld(circle);
         }
 
         return circle;
@@ -119,10 +124,11 @@ public class PhysicsObjectBuilder {
 
     public PhysicsLine createPhysicsLine(PointF start, PointF end) {
         PhysicsLine line = constructPhysicsLine(start, end);
+        line.setObjectId(getNextObjectId());
         PhysicsManager.getPhysicsManager().getObjectList().add(line);
 
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            PhysicsManager.getPhysicsManager().getLiquidFunEngine().createLine(line);
+            PhysicsManager.getPhysicsManager().getLiquidFunEngine().createObjectInWorld(line);
         }
 
         return line;
@@ -130,10 +136,11 @@ public class PhysicsObjectBuilder {
 
     public PhysicsLine createPhysicsLine(ArrayList<PointF> points) {
         PhysicsLine line = constructPhysicsLine(points);
+        line.setObjectId(getNextObjectId());
         PhysicsManager.getPhysicsManager().getObjectList().add(line);
 
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            PhysicsManager.getPhysicsManager().getLiquidFunEngine().createLine(line);
+            PhysicsManager.getPhysicsManager().getLiquidFunEngine().createObjectInWorld(line);
         }
 
         return line;

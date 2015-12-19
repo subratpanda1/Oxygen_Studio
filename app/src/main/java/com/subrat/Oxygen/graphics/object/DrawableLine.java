@@ -6,10 +6,8 @@ import android.graphics.Paint;
 import android.graphics.PointF;
 
 import com.subrat.Oxygen.interfaces.LineInterface;
-import com.subrat.Oxygen.physics.object.PhysicsLine;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
-import com.subrat.Oxygen.utilities.ObjectMapper;
 
 /**
  * Created by subrat.panda on 18/12/15.
@@ -47,9 +45,7 @@ public class DrawableLine extends DrawableObject implements LineInterface {
     }
 
     public boolean draw(Canvas canvas) {
-        PointF startPixel = MathUtils.getMathUtils().getPixelBasedPointFromMeterBasedPoint(start);
-        PointF endPixel = MathUtils.getMathUtils().getPixelBasedPointFromMeterBasedPoint(end);
-        canvas.drawLine(startPixel.x, startPixel.y, endPixel.x, endPixel.y, getLinePainter());
+        canvas.drawLine(start.x, start.y, end.x, end.y, getLinePainter());
         return true;
     }
 }

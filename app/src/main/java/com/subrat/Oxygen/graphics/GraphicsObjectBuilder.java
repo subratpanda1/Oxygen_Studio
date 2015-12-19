@@ -1,5 +1,7 @@
 package com.subrat.Oxygen.graphics;
 
+import android.graphics.PointF;
+
 import com.subrat.Oxygen.graphics.object.DrawableCircle;
 import com.subrat.Oxygen.graphics.object.DrawableLine;
 import com.subrat.Oxygen.graphics.object.DrawableObject;
@@ -7,6 +9,7 @@ import com.subrat.Oxygen.physics.PhysicsObjectBuilder;
 import com.subrat.Oxygen.physics.object.PhysicsCircle;
 import com.subrat.Oxygen.physics.object.PhysicsLine;
 import com.subrat.Oxygen.physics.object.PhysicsObject;
+import com.subrat.Oxygen.utilities.MathUtils;
 
 /**
  * Created by subrat.panda on 19/12/15.
@@ -33,17 +36,20 @@ public class GraphicsObjectBuilder {
         return null;
     }
 
-    public DrawableCircle createDrawableCircle(PhysicsCircle physicsCircle) {
-        DrawableCircle drawableCircle = new DrawableCircle(physicsCircle.getCenter(), physicsCircle.getRadius(), physicsCircle.getRotation());
+    private DrawableCircle createDrawableCircle(PhysicsCircle physicsCircle) {
+        PointF drawableCenter = MathUtils.getMathUtils().getPixelBasedPointFromMeterBasedPoint(physicsCircle.getCenter());
+        float drawableRadius = MathUtils.getMathUtils().getPixelFromMeter(physicsCircle.getRadius());
+        int rotation = physicsCircle.getRotation();
+        DrawableCircle drawableCircle = new DrawableCircle(drawableCenter, drawableRadius, rotation);
         drawableCircle.setObjectId(getNextObjectId());
-        HadaGraphicsEngine.getHadaGraphicsEngine().getObjectList().add(drawableCircle);
         return drawableCircle;
     }
 
-    public DrawableLine createDrawableLine(PhysicsLine physicsLine) {
-        DrawableLine drawableLine = new DrawableLine(physicsLine.getStart(), physicsLine.getEnd());
+    private DrawableLine createDrawableLine(PhysicsLine physicsLine) {
+        PointF drawableStart = MathUtils.getMathUtils().getPixelBasedPointFromMeterBasedPoint(physicsLine.getStart());
+        PointF drawableEnd = MathUtils.getMathUtils().getPixelBasedPointFromMeterBasedPoint(physicsLine.getEnd());
+        DrawableLine drawableLine = new DrawableLine(drawableStart, drawableEnd);
         drawableLine.setObjectId(getNextObjectId());
-        HadaGraphicsEngine.getHadaGraphicsEngine().getObjectList().add(drawableLine);
         return drawableLine;
     }
 }

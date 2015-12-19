@@ -52,17 +52,7 @@ public class OxygenView extends View implements View.OnTouchListener {
     	OxygenActivity.setCanvasDimensions(canvas.getWidth(), canvas.getHeight());
         PhysicsObjectBuilder.getPhysicsObjectBuilder().createOrUpdateBoundaryLines();
 
-        for (DrawableObject object : HadaGraphicsEngine.getHadaGraphicsEngine().getObjectList()) {
-            object.draw(canvas);
-        }
-        
-        /*
-        for (DrawableCircle particle : Object.getParticleList()) {
-        	particle.draw(canvas);
-        }
-        */
-        
-        HadaGraphicsEngine.getHadaGraphicsEngine().drawParticles(canvas);
+        HadaGraphicsEngine.getHadaGraphicsEngine().drawObjects(canvas);
     }
 
     @Override
@@ -93,7 +83,7 @@ public class OxygenView extends View implements View.OnTouchListener {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 drawingMode = true;
-                oxygenActivity.pauseSimulation();
+                // oxygenActivity.pauseSimulation();
                 break;
             case MotionEvent.ACTION_MOVE:
                 break;
@@ -101,7 +91,7 @@ public class OxygenView extends View implements View.OnTouchListener {
                 PhysicsObjectBuilder.getPhysicsObjectBuilder().buildObject(points);
                 points.clear();
                 drawingMode = false;
-                oxygenActivity.resumeSimulation();
+                // oxygenActivity.resumeSimulation();
                 break;
             default:
                 return false;

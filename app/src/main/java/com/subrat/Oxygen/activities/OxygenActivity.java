@@ -10,6 +10,7 @@ import android.widget.Button;
 
 import com.subrat.Oxygen.R;
 import com.subrat.Oxygen.engine.Simulator;
+import com.subrat.Oxygen.graphics.FrameBuffer;
 import com.subrat.Oxygen.graphics.HadaGraphicsEngine;
 import com.subrat.Oxygen.backendRoutines.UpdateObjectsInAThread;
 import com.subrat.Oxygen.customviews.OxygenView;
@@ -57,7 +58,7 @@ public class OxygenActivity extends Activity {
 
         Runnable runnable = new Runnable() {
             public void run() {
-
+                oxygenView.invalidate();
             }
         };
 
@@ -87,9 +88,8 @@ public class OxygenActivity extends Activity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        HadaGraphicsEngine.getHadaGraphicsEngine().getObjectList().clear();
-        HadaGraphicsEngine.getHadaGraphicsEngine().getParticleList().clear();
         stopSimulation();
+        FrameBuffer.getFrameBuffer().clearFrameBuffers();
         context = null;
         finish();
     }

@@ -9,6 +9,7 @@ import com.subrat.Oxygen.activities.OxygenActivity;
 import com.subrat.Oxygen.graphics.FrameBuffer;
 import com.subrat.Oxygen.physics.PhysicsManager;
 import com.subrat.Oxygen.utilities.DeviceSensorManager;
+import com.subrat.Oxygen.utilities.MathUtils;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,6 +44,7 @@ public class Simulator {
 
     public static Simulator initSimulator(final Runnable runnable) {
         if (simulator == null) simulator = new Simulator(runnable);
+        PhysicsManager.getPhysicsManager().initWorld();
         return simulator;
     }
 
@@ -66,18 +68,22 @@ public class Simulator {
                 Date currentDate = new Date();
                 if (OxygenActivity.getContext() == null) return;
                 updateSensorReading();
-                long timeDiff = prevDate == null ? 10L : currentDate.getTime() - prevDate.getTime();
-                PhysicsManager.getPhysicsManager().step(timeDiff / 1000);
-                FrameBuffer.getFrameBuffer().copyPhysicsObjectsToFrameBuffer();
+                if (prevDate != null) {
+                    long timeDiff = currentDate.getTime() - prevDate.getTime();
+                    PhysicsManager.getPhysicsManager().step((float) timeDiff / 1000);
+                    // PhysicsManager.getPhysicsManager().step(0.1F);
+                }
+                PhysicsManager.getPhysicsManager().updateAllObjects();
+                // PhysicsManager.getPhysicsManager().printAllObjects();
+                FrameBuffer.getFrameBuffer().writeToFrameBuffer(PhysicsManager.getPhysicsManager().getObjectList());
+                threadHandler.sendMessage(threadHandler.obtainMessage());
                 prevDate = currentDate;
-                // threadHandler.sendMessage(threadHandler.obtainMessage());
             } else if (threadInstruction.get() == ThreadInstruction.THREAD_PAUSE.getValue()) {
                 // pauseSimulation
             }
 
             try {
-                Log.i("Subrat", "Sleeping for 1000 ms");
-                Thread.sleep(1000);
+                Thread.sleep(30);
             } catch(InterruptedException ex) {
                 thread.interrupt();
             }
@@ -86,7 +92,6 @@ public class Simulator {
 
     public void startSimulator() {
         threadInstruction.set(ThreadInstruction.NO_OP.getValue());
-        PhysicsManager.getPhysicsManager().initWorld();
 
         if (thread == null) {
             thread = new Thread(new Runnable() {
@@ -132,7 +137,7 @@ public class Simulator {
 
     private void updateSensorReading() {
         PointF gravity = DeviceSensorManager.getDeviceSensorManager().getAcceleration();
-        // TODO: Scale gravity accordingly
+        gravity.y = -gravity.y;
         PhysicsManager.getPhysicsManager().setGravity(gravity);
     }
 }

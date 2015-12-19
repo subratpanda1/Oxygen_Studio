@@ -7,7 +7,9 @@ import com.subrat.Oxygen.physics.engines.LiquidFunEngine;
 import com.subrat.Oxygen.physics.object.PhysicsCircle;
 import com.subrat.Oxygen.physics.object.PhysicsLine;
 import com.subrat.Oxygen.physics.object.PhysicsObject;
+import com.subrat.Oxygen.physics.object.PhysicsWaterParticle;
 import com.subrat.Oxygen.utilities.Configuration;
+import com.subrat.Oxygen.utilities.MathUtils;
 
 import java.util.ArrayList;
 
@@ -37,38 +39,9 @@ public class PhysicsManager {
     }
 
     public void step(float stepDuration) {
-        Log.i("Subrat", "Stepping World For " + stepDuration);
-        /*
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
             liquidFunEngine.stepWorld(stepDuration);
-            for (PhysicsObject object : getObjectList()) {
-                if (object instanceof PhysicsCircle) {
-                    liquidFunEngine.updateCircle((PhysicsCircle) object);
-                } else if (object instanceof PhysicsLine) {
-                    liquidFunEngine.updateLine((PhysicsLine) object);
-                }
-            }
-
-            liquidFunEngine.updateParticles(particleList);
-        } else {
-            try {
-                for (PhysicsObject object1 : getObjectList()) {
-                    for (PhysicsObject object2 : getObjectList()) {
-                        if (object2.getObjectId() > object1.getObjectId()) {
-                            if (HadaPhysicsEngine.getHadaPhysicsEngine().checkCollision(object1, object2)) {
-                                HadaPhysicsEngine.getHadaPhysicsEngine().updateCollision(object1, object2);
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-            }
-
-            for (PhysicsObject object : getObjectList()) {
-                object.updatePosition();
-            }
         }
-        */
     }
 
     public void resetVelocities() {
@@ -82,13 +55,13 @@ public class PhysicsManager {
 
     public void editLine(PhysicsLine line) {
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            liquidFunEngine.editLine(line);
+            // liquidFunEngine.editLine(line);
         }
     }
 
     public void addWater() {
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            liquidFunEngine.addWater();
+            // liquidFunEngine.addWater();
         }
     }
 
@@ -108,6 +81,42 @@ public class PhysicsManager {
     public void setGravity(PointF gravity) {
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
             liquidFunEngine.setGravity(gravity);
+        }
+    }
+
+    public void updateAllObjects() {
+        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
+            liquidFunEngine.updateAllPhysicsObjectsFromWorld(getObjectList());
+        }
+    }
+
+    public void printAllObjects() {
+        int serial = 0;
+        String objectId;
+        String objectType;
+        String objectPosition;
+        String objectRotation;
+        String printString = "";
+
+        for (PhysicsObject object : objectList) {
+            ++serial;
+            objectId = "" + object.getObjectId();
+            if (object instanceof PhysicsCircle) {
+                PhysicsCircle physicsCircle = (PhysicsCircle)object;
+                objectType = "Circle: ";
+                objectPosition = "Center: " + MathUtils.getMathUtils().getPointString(physicsCircle.getCenter());
+                objectRotation = "Rotation: " + physicsCircle.getRotation();
+                printString = "Physics Sl: " + serial + ", " + "Id: " + objectId + ", " + objectType + ", " + objectPosition + ", " + objectRotation;
+            } else if (object instanceof PhysicsLine) {
+                PhysicsLine physicsLine = (PhysicsLine)object;
+                objectType = "Line: ";
+                objectPosition = "Position: Start: " + MathUtils.getMathUtils().getPointString(physicsLine.getStart()) + ", " +
+                                           "End: " + MathUtils.getMathUtils().getPointString(physicsLine.getEnd());
+                printString = "Physics Sl: " + serial + ", " + "Id: " + objectId + ", " + objectType + ", " + objectPosition;
+            } else if (object instanceof PhysicsWaterParticle) {
+
+            }
+            Log.i("Subrat", printString);
         }
     }
 }

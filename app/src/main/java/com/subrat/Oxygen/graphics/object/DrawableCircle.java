@@ -2,8 +2,7 @@ package com.subrat.Oxygen.graphics.object;
 
 import android.graphics.*;
 
-import com.subrat.Oxygen.R;
-import com.subrat.Oxygen.activities.OxygenActivity;
+import com.subrat.Oxygen.graphics.HadaGraphicsEngine;
 import com.subrat.Oxygen.interfaces.CircleInterface;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
@@ -29,7 +28,7 @@ public class DrawableCircle extends DrawableObject implements CircleInterface {
     private Paint fillPainter = null;
     private Paint strokePainter = null;
     Bitmap pic;
-    
+
     private boolean isParticle = false;
 
     // Should only be called from HadaGraphicsEngine
@@ -55,8 +54,7 @@ public class DrawableCircle extends DrawableObject implements CircleInterface {
     }
     
     private void initBitmap() {
-        pic = BitmapFactory.decodeResource(OxygenActivity.getContext().getResources(), R.drawable.tennis_ball);
-        pic = Bitmap.createScaledBitmap(pic, 2 * MathUtils.getMathUtils().getPixelFromMeter(this.radius), 2 * MathUtils.getMathUtils().getPixelFromMeter(this.radius),  true);
+        pic = HadaGraphicsEngine.getHadaGraphicsEngine().getScaledBitmap((int)radius);
     }
 
     protected Paint getFillPainter() {
@@ -83,8 +81,8 @@ public class DrawableCircle extends DrawableObject implements CircleInterface {
     public boolean draw(Canvas canvas) {
     	if (isParticle) {
     	} else {
-    		int bitmapCornerX = MathUtils.getMathUtils().getPixelFromMeter(this.getCenter().x - this.getRadius());
-    		int bitmapCornerY = MathUtils.getMathUtils().getPixelFromMeter(this.getCenter().y - this.getRadius());
+    		int bitmapCornerX = (int)(this.getCenter().x - this.getRadius());
+    		int bitmapCornerY = (int)(this.getCenter().y - this.getRadius());
     		
     		Matrix matrix = new Matrix();
     		// System.out.println("Drawing at angle: " + rotation);

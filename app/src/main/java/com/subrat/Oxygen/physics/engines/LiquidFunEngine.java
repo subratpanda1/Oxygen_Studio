@@ -1,14 +1,19 @@
 package com.subrat.Oxygen.physics.engines;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import android.graphics.PointF;
-import android.util.SparseArray;
+import android.util.Log;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
 import com.subrat.Oxygen.graphics.object.DrawableCircle;
 import com.subrat.Oxygen.physics.object.PhysicsCircle;
 import com.subrat.Oxygen.physics.object.PhysicsLine;
+import com.subrat.Oxygen.physics.object.PhysicsObject;
+import com.subrat.Oxygen.physics.object.PhysicsWaterParticle;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 import com.google.fpl.liquidfun.BodyDef;
@@ -23,23 +28,30 @@ import com.google.fpl.liquidfun.FixtureDef;
 import com.google.fpl.liquidfun.World;
 import com.google.fpl.liquidfun.Body;
 
-public class LiquidFunEngine {
+public class LiquidFunEngine implements PhysicsEngineInterface {
 	private World world;
 	private ParticleSystem particleSystem;
 
-	private SparseArray<Body> objectList = new SparseArray<Body>();
+	private Map<Integer, Body> objectMap;
+	private Map<Integer, Integer> particleMap;
+
+	public LiquidFunEngine() {
+		objectMap = new HashMap<>();
+		particleMap = new HashMap<>();
+	}
 	
 	public void clearWorld() {
 		if (world != null) {
-			for(int i = 0; i < objectList.size(); i++) {
-				int key = objectList.keyAt(i);
-				Body body = objectList.get(key);
+			for(Map.Entry<Integer, Body> entry : objectMap.entrySet()) {
+				Body body = entry.getValue();
 				world.destroyBody(body);
 			}
 			world.delete();
 			world = null;
+			particleSystem.delete();
 		}
-		objectList.clear();
+		objectMap.clear();
+		particleMap.clear();
 	}
 	
 	public void initWorld() {
@@ -51,21 +63,120 @@ public class LiquidFunEngine {
 	public void stepWorld(float stepDuration) {
 		if (world == null) return;
 		world.step(stepDuration,
-				   Configuration.VELOCITY_ITERATIONS,
-				   Configuration.POSITION_ITERATIONS,
-				   Configuration.PARTICLE_ITERATIONS);
+				Configuration.VELOCITY_ITERATIONS,
+				Configuration.POSITION_ITERATIONS,
+				Configuration.PARTICLE_ITERATIONS);
+	}
+
+	public void createObjectInWorld(PhysicsObject object) {
+		if (objectMap.containsKey(object.getObjectId())) {
+			Log.e("Subrat", "Object " + object.getObjectId() + " already exists");
+			return;
+		}
+
+		if (particleMap.containsKey(object.getObjectId())) {
+			Log.e("Subrat", "Particle " + object.getObjectId() + " already exists");
+			return;
+		}
+
+		if (object instanceof PhysicsCircle) {
+			PhysicsCircle physicsCircle = (PhysicsCircle)object;
+			Body circleBody = createCircle(physicsCircle);
+			objectMap.put(physicsCircle.getObjectId(), circleBody);
+		} else if (object instanceof PhysicsLine) {
+			PhysicsLine physicsLine = (PhysicsLine)object;
+			Body lineBody = createLine(physicsLine);
+			objectMap.put(physicsLine.getObjectId(), lineBody);
+		} else if (object instanceof PhysicsWaterParticle) {
+			int particleIndex = createParticle((PhysicsWaterParticle) object);
+			particleMap.put(object.getObjectId(), particleIndex);
+		}
+	}
+
+	public void deleteObjectFromWorld(PhysicsObject object) {
+		if (object instanceof PhysicsCircle) {
+			Body circleBody = objectMap.get(object.getObjectId());
+			circleBody.delete();
+			objectMap.remove(object.getObjectId());
+		} else if (object instanceof PhysicsLine) {
+			Body lineBody = objectMap.get(object.getObjectId());
+			lineBody.delete();
+			objectMap.remove(object.getObjectId());
+		} else if (object instanceof PhysicsWaterParticle) {
+			// TODO: Particle deletion needs reindexing in particleMap
+			// particleSystem.destroyParticle(object.getObjectId(), false);
+			// particleMap.remove(object.getObjectId());
+		}
+	}
+
+	public void updateAllPhysicsObjectsFromWorld(ArrayList<PhysicsObject> objects) {
+		for (PhysicsObject object : objects) {
+			updatePhysicsObjectFromWorldObject(object);
+		}
+	}
+
+	public void updatePhysicsObjectFromWorldObject(PhysicsObject object) {
+		if (object instanceof PhysicsCircle) {
+			PhysicsCircle physicsCircle = (PhysicsCircle)object;
+			Body circleBody = objectMap.get(physicsCircle.getObjectId());
+			if (circleBody == null) return;
+			PointF worldCircleCenter = new PointF(circleBody.getPositionX(), circleBody.getPositionY());
+			PointF physicsCircleCenter = getPhysicalPositionFromEnginePosition(worldCircleCenter);
+			physicsCircle.setCenter(physicsCircleCenter);
+			float rad = circleBody.getAngle();
+			int deg = MathUtils.getMathUtils().getDegreeFromRadian(rad);
+			physicsCircle.setRotation(deg);
+		} else if (object instanceof PhysicsLine) {
+			PhysicsLine physicsLine = (PhysicsLine)object;
+			Body lineBody = objectMap.get(physicsLine.getObjectId());
+			if (lineBody == null) return;
+			// TODO: Update physicsLine from lineBody
+		} else if (object instanceof PhysicsWaterParticle) {
+			PhysicsWaterParticle physicsWaterParticle = (PhysicsWaterParticle)object;
+			Integer particleIndex = particleMap.get(object.getObjectId());
+			if (particleIndex == null) return;
+			PointF worldParticlePosition = new PointF(particleSystem.getParticlePositionX(particleIndex), particleSystem.getParticlePositionY(particleIndex));
+			PointF physicsParticlePosition = getPhysicalPositionFromEnginePosition(worldParticlePosition);
+			physicsWaterParticle.setPosition(physicsParticlePosition);
+		}
+	}
+
+	public void updateWorldObjectFromPhysicsObject(PhysicsObject object) {
+		if (object instanceof PhysicsCircle) {
+			PhysicsCircle physicsCircle = (PhysicsCircle)object;
+			Body circleBody = objectMap.get(physicsCircle.getObjectId());
+			if (circleBody == null) return;
+			PointF worldCircleCenter = getEnginePositionFromPhysicalPosition(physicsCircle.getCenter());
+			circleBody.setTransform(worldCircleCenter.x, worldCircleCenter.y, physicsCircle.getRotation());
+		} else if (object instanceof PhysicsLine) {
+			PhysicsLine physicsLine = (PhysicsLine)object;
+			Body lineBody = objectMap.get(physicsLine.getObjectId());
+			if (lineBody == null) return;
+			PointF startPointInWorld = getEnginePositionFromPhysicalPosition(physicsLine.getStart());
+			PointF endPointInWorld   = getEnginePositionFromPhysicalPosition(physicsLine.getEnd());
+			lineBody.setTransform((startPointInWorld.x + endPointInWorld.x) / 2,
+					(startPointInWorld.y + endPointInWorld.y) / 2,
+					MathUtils.getMathUtils().getRadian(startPointInWorld, endPointInWorld));
+		} else if (object instanceof PhysicsWaterParticle) {
+			PhysicsWaterParticle physicsWaterParticle = (PhysicsWaterParticle)object;
+			Integer worldParticleIndex = particleMap.get(physicsWaterParticle.getObjectId());
+			if (worldParticleIndex == null) return;
+			PointF positionInWorld = getEnginePositionFromPhysicalPosition(physicsWaterParticle.getPosition());
+			// TODO: Update particle position
+		}
 	}
 	
 	public void setGravity(PointF gravity) {
-		world.setGravity(gravity.x, gravity.y);
+		PointF worldGravity = getEnginePositionFromPhysicalPosition(gravity);
+		world.setGravity(worldGravity.x, worldGravity.y);
 	}
 	
-	public void createCircle(PhysicsCircle drawableCircle) {
-		PointF centerInWorld = new PointF(drawableCircle.getCenter().x, OxygenActivity.getWorldHeight() - drawableCircle.getCenter().y);
+	private Body createCircle(PhysicsCircle physicsCircle) {
+		PointF centerInWorld = getEnginePositionFromPhysicalPosition(physicsCircle.getCenter());
 
 		CircleShape circleShape = new CircleShape();
 		circleShape.setPosition(0,0);
-		circleShape.setRadius(drawableCircle.getRadius());
+		circleShape.setRadius(physicsCircle.getRadius());
 		
 		BodyDef circleBodyDef = new BodyDef();
 		circleBodyDef.setType(BodyType.dynamicBody);
@@ -84,17 +195,17 @@ public class LiquidFunEngine {
 		circleShape.delete();
 		circleBodyDef.delete();
 		fixtureDef.delete();
-		
-		objectList.put(drawableCircle.getObjectId(), circleBody);
+
+		return circleBody;
 	}
 	
-	public void createLine(PhysicsLine line) {
-		PointF startPointInWorld = new PointF(line.getStart().x, OxygenActivity.getWorldHeight() - line.getStart().y);
-		PointF endPointInWorld = new PointF(line.getEnd().x, OxygenActivity.getWorldHeight() - line.getEnd().y);
+	private Body createLine(PhysicsLine physicsLine) {
+		PointF startPointInWorld = getEnginePositionFromPhysicalPosition(physicsLine.getStart());
+		PointF endPointInWorld = getEnginePositionFromPhysicalPosition(physicsLine.getEnd());
 		
 		PolygonShape lineShape = new PolygonShape();
-		float length = MathUtils.getMathUtils().getDistance(line.getStart(), line.getEnd());
-		lineShape.setAsBox(length / 2, Configuration.LINE_THICKNESS/2);
+		float length = MathUtils.getMathUtils().getDistance(physicsLine.getStart(), physicsLine.getEnd());
+		lineShape.setAsBox(length / 2, Configuration.LINE_THICKNESS / 2);
 		
 		BodyDef lineBodyDef = new BodyDef();
 		lineBodyDef.setType(BodyType.staticBody);
@@ -106,51 +217,25 @@ public class LiquidFunEngine {
 		fixtureDef.setDensity(0F);
 		
 		Body lineBody = world.createBody(lineBodyDef);
-		// lineBody.createFixture(lineShape, 0F);
 		lineBody.createFixture(fixtureDef);
 		
 		lineShape.delete();
 		lineBodyDef.delete();
 		fixtureDef.delete();
-		
-		objectList.put(line.getObjectId(), lineBody);
+
+		return lineBody;
 	}
-	
-	public void updateCircle(PhysicsCircle physicsCircle) {
-		Body circleBody = objectList.get(physicsCircle.getObjectId());
-		
-		PointF centerInCanvas = new PointF(circleBody.getPositionX(), OxygenActivity.getWorldHeight() - circleBody.getPositionY());
-		physicsCircle.setCenter(centerInCanvas);
-		float rad = circleBody.getAngle();
-		int deg = (int)( (rad * -180F) / MathUtils.getMathUtils().getPI() );
-		physicsCircle.setRotation(deg);
+
+	private int createParticle(PhysicsWaterParticle physicsWaterParticle) {
+		ParticleDef particleDef = new ParticleDef();
+		particleDef.setFlags(ParticleFlag.waterParticle);
+		PointF particlePositionInWorld = getEnginePositionFromPhysicalPosition(physicsWaterParticle.getPosition());
+		particleDef.setPosition(particlePositionInWorld.x, particlePositionInWorld.y);
+		int particleIndex = particleSystem.createParticle(particleDef);
+		particleDef.delete();
+		return particleIndex;
 	}
-	
-	public void editCircle(DrawableCircle drawableCircle) {
-		Body circleBody = objectList.get(drawableCircle.getObjectId());
-		
-		PointF centerInWorld = new PointF(drawableCircle.getCenter().x, OxygenActivity.getWorldHeight() - drawableCircle.getCenter().y);
-		circleBody.setTransform(centerInWorld.x, centerInWorld.y, 0);
-		
-	}
-	
-	public void updateLine(PhysicsLine line) {
-		// Body lineBody = objectList.get(line.getObjectId());
-		// Get edge points from line center and rotation
-		// PointF lineStartInCanvas
-		// PointF lineEndInCanvas
-	}
-	
-	public void editLine(PhysicsLine line) {
-		PointF startPointInWorld = new PointF(line.getStart().x, OxygenActivity.getWorldHeight() - line.getStart().y);
-		PointF endPointInWorld   = new PointF(line.getEnd().x,   OxygenActivity.getWorldHeight() - line.getEnd().y);
-		
-		Body lineBody = objectList.get(line.getObjectId());
-		lineBody.setTransform((startPointInWorld.x + endPointInWorld.x) / 2,
-				              (startPointInWorld.y + endPointInWorld.y) / 2,
-				              MathUtils.getMathUtils().getRadian(startPointInWorld, endPointInWorld));
-	}
-	
+
 	public void createParticleSystem() {
 		ParticleSystemDef psDef = new ParticleSystemDef();
         psDef.setRadius(Configuration.PARTICLE_RADIUS);
@@ -162,7 +247,6 @@ public class LiquidFunEngine {
         particleSystem = world.createParticleSystem(psDef);
         particleSystem.setMaxParticleCount(Configuration.MAX_PARTICLE_COUNT);
         psDef.delete();
-        
         // addGroundWater();
 	}
 	
@@ -195,7 +279,6 @@ public class LiquidFunEngine {
 	}
 	
 	public void updateParticles(ArrayList<DrawableCircle> particleList) {
-		if (particleSystem == null) return;
 		for (int i = 0; i < particleSystem.getParticleCount(); ++i) {
 			PointF center = new PointF(particleSystem.getParticlePositionX(i), OxygenActivity.getWorldHeight() - particleSystem.getParticlePositionY(i));
 			if (particleList.size() <= i) {
@@ -206,5 +289,38 @@ public class LiquidFunEngine {
 				drawableCircle.setCenter(center);
 			}
 		}
+	}
+
+	private PointF getPhysicalPositionFromEnginePosition(PointF point) {
+		if (point == null) return null;
+		return new PointF(point.x, point.y);
+
+	}
+
+	private PointF getEnginePositionFromPhysicalPosition(PointF point) {
+		if (point == null) return null;
+		return new PointF(point.x, point.y);
+	}
+
+	private ArrayList<PointF> getPhysicalPositionFromEnginePosition(ArrayList<PointF> points) {
+		if (points == null) return null;
+
+		ArrayList<PointF> newPoints = new ArrayList<>();
+		for (PointF point : points) {
+			newPoints.add(new PointF(point.x, point.y));
+		}
+
+		return newPoints;
+	}
+
+	private ArrayList<PointF> getEnginePositionFromPhysicalPosition(ArrayList<PointF> points) {
+		if (points == null) return null;
+
+		ArrayList<PointF> newPoints = new ArrayList<>();
+		for (PointF point : points) {
+			newPoints.add(new PointF(point.x, point.y));
+		}
+
+		return newPoints;
 	}
 }

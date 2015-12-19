@@ -195,24 +195,27 @@ public class MathUtils {
 	}
 	
 	public PointF getPixelBasedPointFromMeterBasedPoint(PointF point) {
-		return new PointF(getPixelFromMeter(point.x), getPixelFromMeter(point.y));
+		return new PointF(getPixelFromMeter(point.x), OxygenActivity.getCanvasHeight() - getPixelFromMeter(point.y));
 	}
 
 	public PointF getMeterBasedPointFromPixelBasedPoint(PointF point) {
-		return new PointF(getMeterFromPixel((int)point.x), getMeterFromPixel((int)point.y));
+		return new PointF(getMeterFromPixel((int) point.x), getMeterFromPixel((int)(OxygenActivity.getCanvasHeight() - point.y)));
 	}
 	
 	public void transformToMeterBasedPoints(ArrayList<PointF> points) {
 		for (PointF point : points) {
 			point.x = getMeterFromPixel((int)point.x);
-			point.y = getMeterFromPixel((int)point.y);
+			point.y = getMeterFromPixel((int)(OxygenActivity.getCanvasHeight() - point.y));
 		}
 	}
 	
-	public void transformToPixelBasedPoints(ArrayList<PointF> points) {
-		for (PointF point : points) {
-			point.x = getPixelFromMeter((int)point.x);
-			point.y = getPixelFromMeter((int)point.y);
-		}
-	}
+    public int getDegreeFromRadian(float rad) {
+        int deg = (int) ((rad * -180F) / getPI());
+        return deg;
+    }
+
+    public float getRadianFromDegree(int deg) {
+        float rad = (float)deg * getPI() / -180F;
+        return rad;
+    }
 }
