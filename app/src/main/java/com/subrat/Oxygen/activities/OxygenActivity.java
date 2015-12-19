@@ -12,10 +12,10 @@ import com.subrat.Oxygen.R;
 import com.subrat.Oxygen.engine.Simulator;
 import com.subrat.Oxygen.graphics.FrameBuffer;
 import com.subrat.Oxygen.graphics.HadaGraphicsEngine;
-import com.subrat.Oxygen.backendRoutines.UpdateObjectsInAThread;
 import com.subrat.Oxygen.customviews.OxygenView;
 import com.subrat.Oxygen.physics.PhysicsManager;
 import com.subrat.Oxygen.utilities.Configuration;
+import com.subrat.Oxygen.utilities.Statistics;
 
 /**
  * Created by subrat.panda on 07/05/15.
@@ -31,8 +31,6 @@ public class OxygenActivity extends Activity {
     Runnable runnable;
     OxygenView oxygenView;
 
-    UpdateObjectsInAThread updateObjectsInAThread = null;
-
     Button.OnClickListener onClickListener;
 
     @Override
@@ -44,37 +42,30 @@ public class OxygenActivity extends Activity {
 
         context = this;
 
-        onClickListener = new Button.OnClickListener() {
-            public void onClick(View view) {
-                PhysicsManager.getPhysicsManager().addWater();
-            }
-        };
-        
-        Button button = (Button) findViewById(R.id.waterButton);
-        button.setOnClickListener(onClickListener);
-        if (!Configuration.USE_LIQUIDFUN_PHYSICS) {
-        	button.setVisibility(View.GONE);
-        }
+        addButton();
 
         Runnable runnable = new Runnable() {
             public void run() {
-                oxygenView.invalidate();
+                // Physics update callback comes here
             }
         };
 
-        Simulator.initSimulator(runnable);
-        
+        Statistics.getStatistics().resetStatistics();
+        Simulator.getSimulator().initSimulator(runnable);
         startSimulation();
     }
 
     public static Context getContext() { return context; }
     
     public void stopSimulation() {
+        HadaGraphicsEngine.getHadaGraphicsEngine().stopRenderLoop();
         Simulator.getSimulator().stopSimulator();
     }
 
     public void startSimulation() {
         Simulator.getSimulator().startSimulator();
+        HadaGraphicsEngine.getHadaGraphicsEngine().initRenderLoop(oxygenView);
+        HadaGraphicsEngine.getHadaGraphicsEngine().startRenderLoop();
     }
 
     public void pauseSimulation() {
@@ -137,6 +128,20 @@ public class OxygenActivity extends Activity {
     	worldHeight = Configuration.DEFAULT_WORLD_HEIGHT;
     	int pixelsPerMeter = (int)(canvasHeight / worldHeight);
     	worldWidth = (float)canvasWidth / (float)pixelsPerMeter;
+    }
+
+    public void addButton() {
+        onClickListener = new Button.OnClickListener() {
+            public void onClick(View view) {
+                PhysicsManager.getPhysicsManager().addWater();
+            }
+        };
+
+        Button button = (Button) findViewById(R.id.waterButton);
+        button.setOnClickListener(onClickListener);
+        if (!Configuration.USE_LIQUIDFUN_PHYSICS) {
+            button.setVisibility(View.GONE);
+        }
     }
 }
 

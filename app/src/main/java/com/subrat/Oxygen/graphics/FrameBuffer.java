@@ -71,7 +71,6 @@ public class FrameBuffer {
             ArrayList<DrawableObject> tmpFrameBuffer = readFrameBuffer;
             readFrameBuffer = writeFrameBuffer;
             writeFrameBuffer = tmpFrameBuffer;
-            // printAllObjects();
         } catch (Exception e) {
             Log.e("Subrat", e.getMessage(), e);
             throw e;

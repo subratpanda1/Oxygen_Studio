@@ -10,6 +10,7 @@ import com.subrat.Oxygen.graphics.FrameBuffer;
 import com.subrat.Oxygen.physics.PhysicsManager;
 import com.subrat.Oxygen.utilities.DeviceSensorManager;
 import com.subrat.Oxygen.utilities.MathUtils;
+import com.subrat.Oxygen.utilities.Statistics;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,22 +40,22 @@ public class Simulator {
     private DeviceSensorManager deviceSensorManager;
 
     public static Simulator getSimulator() {
+        if (simulator == null) simulator = new Simulator();
         return simulator;
     }
 
-    public static Simulator initSimulator(final Runnable runnable) {
-        if (simulator == null) simulator = new Simulator(runnable);
-        PhysicsManager.getPhysicsManager().initWorld();
-        return simulator;
-    }
-
-    private Simulator(final Runnable runnable) {
+    public Simulator initSimulator(final Runnable runnable) {
         threadHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 runnable.run();
             }
         };
+        PhysicsManager.getPhysicsManager().initWorld();
+        return simulator;
+    }
+
+    private Simulator() {
         deviceSensorManager = DeviceSensorManager.getDeviceSensorManager();
         threadInstruction = new AtomicInteger(ThreadInstruction.NO_OP.getValue());
     }
@@ -65,27 +66,29 @@ public class Simulator {
             if (threadInstruction.get() == ThreadInstruction.THREAD_STOP.getValue()) {
                 break;
             } else if (threadInstruction.get() == ThreadInstruction.THREAD_CONTINUE.getValue()) {
-                Date currentDate = new Date();
                 if (OxygenActivity.getContext() == null) return;
                 updateSensorReading();
+                Date currentDate = new Date();
                 if (prevDate != null) {
                     long timeDiff = currentDate.getTime() - prevDate.getTime();
+                    if (timeDiff < 5) {
+                        try {
+                            Thread.sleep(5 - timeDiff);
+                        } catch(InterruptedException ex) {
+                            thread.interrupt();
+                        }
+                        currentDate = new Date();
+                        timeDiff = currentDate.getTime() - prevDate.getTime();
+                    }
                     PhysicsManager.getPhysicsManager().step((float) timeDiff / 1000);
-                    // PhysicsManager.getPhysicsManager().step(0.1F);
                 }
                 PhysicsManager.getPhysicsManager().updateAllObjects();
-                // PhysicsManager.getPhysicsManager().printAllObjects();
                 FrameBuffer.getFrameBuffer().writeToFrameBuffer(PhysicsManager.getPhysicsManager().getObjectList());
+                Statistics.getStatistics().incrementNumPhysicsUpdates();
                 threadHandler.sendMessage(threadHandler.obtainMessage());
                 prevDate = currentDate;
             } else if (threadInstruction.get() == ThreadInstruction.THREAD_PAUSE.getValue()) {
                 // pauseSimulation
-            }
-
-            try {
-                Thread.sleep(30);
-            } catch(InterruptedException ex) {
-                thread.interrupt();
             }
         }
     }

@@ -49,9 +49,6 @@ public class PhysicsObjectBuilder {
             createPhysicsLine(bottomLeft, bottomRight);
             createPhysicsLine(topLeft, bottomLeft);
             createPhysicsLine(topRight, bottomRight);
-            // createPhysicsLine(new PointF(0, 0), new PointF(3, 0));
-            // createPhysicsCircle(new PointF(1.5F, 3.5F), 0.3F, 0);
-            createPhysicsCircle(new PointF(1.5F, 4.5F), 0.3F, 0);
         } else {
             ((PhysicsLine) PhysicsManager.getPhysicsManager().getObjectList().get(0)).editLine(topLeft, topRight);
             ((PhysicsLine) PhysicsManager.getPhysicsManager().getObjectList().get(1)).editLine(bottomLeft, bottomRight);
