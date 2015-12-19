@@ -29,30 +29,15 @@ public class DrawableCircle extends DrawableObject implements CircleInterface {
     private Paint strokePainter = null;
     Bitmap pic;
 
-    private boolean isParticle = false;
-
     // Should only be called from HadaGraphicsEngine
     public DrawableCircle(PointF center, float radius, int rotation) {
         this.center = center;
         this.radius = radius;
         this.rotation = rotation;
-        this.isParticle = false;
 
         initBitmap();
     }
 
-    // Should only be called from HadaGraphicsEngine
-    public DrawableCircle(PointF center, float radius, int rotation, boolean isParticle) {
-        this.center = center;
-        this.radius = radius;
-        this.rotation = rotation;
-        this.isParticle = isParticle;
-
-        if (isParticle != true) {
-        	initBitmap();
-    	}
-    }
-    
     private void initBitmap() {
         pic = HadaGraphicsEngine.getHadaGraphicsEngine().getScaledBitmap((int)radius);
     }
@@ -79,19 +64,16 @@ public class DrawableCircle extends DrawableObject implements CircleInterface {
     }
     
     public boolean draw(Canvas canvas) {
-    	if (isParticle) {
-    	} else {
-    		int bitmapCornerX = (int)(this.getCenter().x - this.getRadius());
-    		int bitmapCornerY = (int)(this.getCenter().y - this.getRadius());
-    		
-    		Matrix matrix = new Matrix();
-    		// System.out.println("Drawing at angle: " + rotation);
-    		matrix.setRotate(rotation, pic.getWidth() / 2, pic.getHeight() / 2);
-    		matrix.postTranslate(bitmapCornerX, bitmapCornerY);
-    		
-    		// canvas.drawBitmap(pic, bitmapCornerX, bitmapCornerY, null);
-    		canvas.drawBitmap(pic, matrix, null);
-    	}
+        int bitmapCornerX = (int)(this.getCenter().x - this.getRadius());
+        int bitmapCornerY = (int)(this.getCenter().y - this.getRadius());
+
+        Matrix matrix = new Matrix();
+        // System.out.println("Drawing at angle: " + rotation);
+        matrix.setRotate(rotation, pic.getWidth() / 2, pic.getHeight() / 2);
+        matrix.postTranslate(bitmapCornerX, bitmapCornerY);
+
+        // canvas.drawBitmap(pic, bitmapCornerX, bitmapCornerY, null);
+        canvas.drawBitmap(pic, matrix, null);
         return true;
     }
 }

@@ -8,9 +8,9 @@ import com.subrat.Oxygen.interfaces.ParticleInterface;
  * Created by subrat.panda on 19/12/15.
  */
 public class PhysicsWaterParticle extends PhysicsObject implements ParticleInterface {
-    private PointF center;
-    public PointF getPosition() { return center; }
-    public void setPosition(PointF point) { center = point; }
+    private PointF position;
+    public PointF getPosition() { return position; }
+    public void setPosition(PointF point) { position = point; }
 
     private PointF acceleration;
     public PointF getAcceleration() { return acceleration; }
@@ -28,4 +28,8 @@ public class PhysicsWaterParticle extends PhysicsObject implements ParticleInter
 
     public float getMass() { return 0; }
     public void setMass(float mass) { }
+
+    public PhysicsWaterParticle(PointF position) {
+        this.position = position;
+    }
 }

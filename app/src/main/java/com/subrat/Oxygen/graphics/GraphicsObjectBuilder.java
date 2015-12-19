@@ -5,10 +5,12 @@ import android.graphics.PointF;
 import com.subrat.Oxygen.graphics.object.DrawableCircle;
 import com.subrat.Oxygen.graphics.object.DrawableLine;
 import com.subrat.Oxygen.graphics.object.DrawableObject;
+import com.subrat.Oxygen.graphics.object.DrawableWaterParticle;
 import com.subrat.Oxygen.physics.PhysicsObjectBuilder;
 import com.subrat.Oxygen.physics.object.PhysicsCircle;
 import com.subrat.Oxygen.physics.object.PhysicsLine;
 import com.subrat.Oxygen.physics.object.PhysicsObject;
+import com.subrat.Oxygen.physics.object.PhysicsWaterParticle;
 import com.subrat.Oxygen.utilities.MathUtils;
 
 /**
@@ -31,6 +33,9 @@ public class GraphicsObjectBuilder {
         } else if (physicsObject instanceof PhysicsLine) {
             PhysicsLine physicsLine = (PhysicsLine)physicsObject;
             return createDrawableLine(physicsLine);
+        } else if (physicsObject instanceof PhysicsWaterParticle) {
+            PhysicsWaterParticle physicsWaterParticle = (PhysicsWaterParticle)physicsObject;
+            return createDrawableWaterParticle(physicsWaterParticle);
         }
 
         return null;
@@ -51,5 +56,12 @@ public class GraphicsObjectBuilder {
         DrawableLine drawableLine = new DrawableLine(drawableStart, drawableEnd);
         drawableLine.setObjectId(getNextObjectId());
         return drawableLine;
+    }
+
+    private DrawableWaterParticle createDrawableWaterParticle(PhysicsWaterParticle physicsWaterParticle) {
+        PointF drawablePosition = MathUtils.getMathUtils().getPixelBasedPointFromMeterBasedPoint(physicsWaterParticle.getPosition());
+        DrawableWaterParticle drawableWaterParticle = new DrawableWaterParticle(drawablePosition);
+        drawableWaterParticle.setObjectId(getNextObjectId());
+        return drawableWaterParticle;
     }
 }

@@ -249,7 +249,8 @@ public class LiquidFunEngine implements PhysicsEngineInterface {
         psDef.delete();
         // addGroundWater();
 	}
-	
+
+	/*
 	public void addGroundWater() {
         for (int x = 1; x < 20; ++x) {
         	for (int y = 1; y < 20; ++y) {
@@ -262,8 +263,8 @@ public class LiquidFunEngine implements PhysicsEngineInterface {
         	}
         }
 	}
-	
-	public void addWater() {
+
+	public void addWater(ArrayList<PhysicsWaterParticle> particleList) {
 		float shift = MathUtils.getMathUtils().getRandom(OxygenActivity.getWorldWidth() / 5, (OxygenActivity.getWorldWidth() * 3) / 5);
 		for (int x = 1; x < 5; ++x) {
 			for (int y = 1; y < 5; ++y) {
@@ -273,23 +274,20 @@ public class LiquidFunEngine implements PhysicsEngineInterface {
         		particleDef.setPosition(borderDistance + shift + ((float)x)/7,
         				                OxygenActivity.getWorldHeight() - borderDistance - ((float)y)/7);
         		particleSystem.createParticle(particleDef);
-        		particleDef.delete();	
+        		particleDef.delete();
 			}
 		}
-	}
-	
-	public void updateParticles(ArrayList<DrawableCircle> particleList) {
-		for (int i = 0; i < particleSystem.getParticleCount(); ++i) {
-			PointF center = new PointF(particleSystem.getParticlePositionX(i), OxygenActivity.getWorldHeight() - particleSystem.getParticlePositionY(i));
-			if (particleList.size() <= i) {
-				DrawableCircle drawableCircle = new DrawableCircle(center, Configuration.PARTICLE_RADIUS, 0, true);
-				particleList.add(drawableCircle);
-			} else {
-				DrawableCircle drawableCircle = particleList.get(i);
-				drawableCircle.setCenter(center);
-			}
+
+		for (PhysicsWaterParticle particle : particleList) {
+			ParticleDef particleDef = new ParticleDef();
+			particleDef.setFlags(ParticleFlag.waterParticle);
+			PointF particleWorldPosition = getEnginePositionFromPhysicalPosition(particle.getPosition());
+			particleDef.setPosition(particleWorldPosition.x, particleWorldPosition.y);
+			particleSystem.createParticle(particleDef);
+			particleDef.delete();
 		}
 	}
+	*/
 
 	private PointF getPhysicalPositionFromEnginePosition(PointF point) {
 		if (point == null) return null;

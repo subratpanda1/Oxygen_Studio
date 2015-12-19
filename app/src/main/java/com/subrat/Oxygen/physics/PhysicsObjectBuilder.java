@@ -6,6 +6,7 @@ import com.subrat.Oxygen.activities.OxygenActivity;
 import com.subrat.Oxygen.physics.object.PhysicsCircle;
 import com.subrat.Oxygen.physics.object.PhysicsLine;
 import com.subrat.Oxygen.physics.object.PhysicsObject;
+import com.subrat.Oxygen.physics.object.PhysicsWaterParticle;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 import com.subrat.Oxygen.utilities.ShapeDetector;
@@ -95,6 +96,12 @@ public class PhysicsObjectBuilder {
         return line;
     }
 
+    public PhysicsWaterParticle constructPhysicsWaterParticle(PointF position) {
+        PhysicsWaterParticle physicsWaterParticle = new PhysicsWaterParticle(position);
+        return physicsWaterParticle;
+
+    }
+
     public PhysicsCircle createPhysicsCircle(PointF center, float radius, int rotation) {
         PhysicsCircle circle = constructPhysicsCircle(center, radius, rotation);
         circle.setObjectId(getNextObjectId());
@@ -141,5 +148,17 @@ public class PhysicsObjectBuilder {
         }
 
         return line;
+    }
+
+    public PhysicsWaterParticle createPhysicsWaterParticle(PointF position) {
+        PhysicsWaterParticle physicsWaterParticle = constructPhysicsWaterParticle(position);
+        physicsWaterParticle.setObjectId(getNextObjectId());
+        PhysicsManager.getPhysicsManager().getObjectList().add(physicsWaterParticle);
+
+        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
+            PhysicsManager.getPhysicsManager().getLiquidFunEngine().createObjectInWorld(physicsWaterParticle);
+        }
+
+        return physicsWaterParticle;
     }
 }

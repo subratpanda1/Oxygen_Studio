@@ -14,6 +14,7 @@ import com.subrat.Oxygen.activities.OxygenActivity;
 import com.subrat.Oxygen.customviews.OxygenView;
 import com.subrat.Oxygen.graphics.object.DrawableCircle;
 import com.subrat.Oxygen.graphics.object.DrawableObject;
+import com.subrat.Oxygen.graphics.object.DrawableWaterParticle;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 import com.subrat.Oxygen.utilities.Statistics;
@@ -47,7 +48,8 @@ public class HadaGraphicsEngine {
         waterPainter = new Paint();
         waterPainter.setColor(Color.CYAN);
         waterPainter.setStyle(Paint.Style.STROKE);
-        waterPainter.setStrokeWidth(MathUtils.getMathUtils().getPixelFromMeter(Configuration.PARTICLE_RADIUS / 4));
+        // waterPainter.setStrokeWidth(MathUtils.getMathUtils().getPixelFromMeter(Configuration.PARTICLE_RADIUS * 10));
+        waterPainter.setStrokeWidth(3);
 
         textPainter = new Paint();
         textPainter.setColor(Color.WHITE);
@@ -68,7 +70,7 @@ public class HadaGraphicsEngine {
         }
     }
 
-    protected Paint getWaterPainter() {
+    public Paint getWaterPainter() {
         return waterPainter;
     }
 
@@ -76,25 +78,41 @@ public class HadaGraphicsEngine {
         FrameBuffer.getFrameBuffer().startFrameBufferRead();
         int size = FrameBuffer.getFrameBuffer().getFrameBufferSize();
         for (int i = 0; i < size; ++i) {
-            FrameBuffer.getFrameBuffer().getFrameObject(i).draw(canvas);
-        }
-        FrameBuffer.getFrameBuffer().stopFrameBufferRead();
+            DrawableObject drawableObject = FrameBuffer.getFrameBuffer().getFrameObject(i);
+            if (drawableObject instanceof DrawableWaterParticle) {
 
+            } else {
+                FrameBuffer.getFrameBuffer().getFrameObject(i).draw(canvas);
+            }
+        }
+
+        // Particle drawing is done together for optimized
+        drawParticles(canvas);
+        FrameBuffer.getFrameBuffer().stopFrameBufferRead();
         showStatistics(canvas);
     }
 
     public void drawParticles(Canvas canvas) {
-        /*
+        ArrayList<DrawableWaterParticle> particleList = new ArrayList<>();
+        int size = FrameBuffer.getFrameBuffer().getFrameBufferSize();
+        for (int i = 0; i < size; ++i) {
+            DrawableObject drawableObject = FrameBuffer.getFrameBuffer().getFrameObject(i);
+            if (drawableObject instanceof DrawableWaterParticle) {
+                particleList.add((DrawableWaterParticle)drawableObject);
+            }
+        }
+
+        if (particleList.isEmpty()) return;
+
         float[] points = new float[2 * particleList.size()];
-        int i = 0;
-        for (DrawableCircle drawableCircle : particleList) {
-            points[i++] = MathUtils.getMathUtils().getPixelFromMeter(drawableCircle.getCenter().x);
-            points[i++] = MathUtils.getMathUtils().getPixelFromMeter(drawableCircle.getCenter().y);
+        int index = 0;
+        for (DrawableWaterParticle drawableWaterParticle : particleList) {
+            points[index++] = drawableWaterParticle.getPosition().x;
+            points[index++] = drawableWaterParticle.getPosition().y;
         }
 
         canvas.drawPoints(points, getWaterPainter());
         // canvas.drawVertices(Canvas.VertexMode.TRIANGLES, points.length, points, 0, null, 0, null, 0, null, 0, 0, getWaterPainter());
-        */
     }
 
     public void initRenderLoop(final OxygenView oxygenView) {

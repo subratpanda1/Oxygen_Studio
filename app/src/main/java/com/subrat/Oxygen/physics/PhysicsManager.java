@@ -3,6 +3,7 @@ package com.subrat.Oxygen.physics;
 import android.graphics.PointF;
 import android.util.Log;
 
+import com.subrat.Oxygen.activities.OxygenActivity;
 import com.subrat.Oxygen.physics.engines.LiquidFunEngine;
 import com.subrat.Oxygen.physics.object.PhysicsCircle;
 import com.subrat.Oxygen.physics.object.PhysicsLine;
@@ -60,8 +61,14 @@ public class PhysicsManager {
     }
 
     public void addWater() {
-        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            // liquidFunEngine.addWater();
+        float shift = MathUtils.getMathUtils().getRandom(OxygenActivity.getWorldWidth() / 5, (OxygenActivity.getWorldWidth() * 3) / 5);
+        for (int x = 1; x < 5; ++x) {
+            for (int y = 1; y < 5; ++y) {
+                float borderDistance = 2 * Configuration.CANVAS_MARGIN + 2 * Configuration.LINE_THICKNESS;
+                PointF position = new PointF(borderDistance + shift + ((float) x) / 7,
+                        OxygenActivity.getWorldHeight() - borderDistance - ((float) y) / 7);
+                PhysicsObjectBuilder.getPhysicsObjectBuilder().createPhysicsWaterParticle(position);
+            }
         }
     }
 
