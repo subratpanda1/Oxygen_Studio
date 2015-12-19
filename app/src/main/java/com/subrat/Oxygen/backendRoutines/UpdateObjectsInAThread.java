@@ -12,6 +12,7 @@ import com.subrat.Oxygen.customviews.OxygenView;
 import com.subrat.Oxygen.physics.PhysicsManager;
 import com.subrat.Oxygen.physics.object.PhysicsCircle;
 import com.subrat.Oxygen.utilities.Configuration;
+import com.subrat.Oxygen.utilities.ShakeDetector;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -126,7 +127,7 @@ public class UpdateObjectsInAThread {
     }
 
     private void updateSensorReading() {
-        float[] accelValues = mShakeDetector.accelValues; // Got in mtr per sec per sec
+        float[] accelValues = mShakeDetector.getAccelValues(); // Got in mtr per sec per sec
         float convertedAccelValuesX = accelValues[0];
         float convertedAccelValuesY = accelValues[1];
 

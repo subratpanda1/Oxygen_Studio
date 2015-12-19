@@ -1,9 +1,9 @@
 package com.subrat.Oxygen.physics;
 
 import android.graphics.PointF;
+import android.util.Log;
 
-import com.subrat.Oxygen.activities.OxygenActivity;
-import com.subrat.Oxygen.graphics.object.DrawableCircle;
+import com.subrat.Oxygen.physics.engines.LiquidFunEngine;
 import com.subrat.Oxygen.physics.object.PhysicsCircle;
 import com.subrat.Oxygen.physics.object.PhysicsLine;
 import com.subrat.Oxygen.physics.object.PhysicsObject;
@@ -32,14 +32,13 @@ public class PhysicsManager {
     private ArrayList<PhysicsObject> objectList = new ArrayList<>();
     public ArrayList<PhysicsObject> getObjectList() { return objectList; }
 
-    private ArrayList<DrawableCircle> particleList = new ArrayList<>();
-    public ArrayList<DrawableCircle> getParticleList() { return particleList; }
-
     public LiquidFunEngine getLiquidFunEngine() {
         return liquidFunEngine;
     }
 
     public void step(float stepDuration) {
+        Log.i("Subrat", "Stepping World For " + stepDuration);
+        /*
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
             liquidFunEngine.stepWorld(stepDuration);
             for (PhysicsObject object : getObjectList()) {
@@ -69,6 +68,7 @@ public class PhysicsManager {
                 object.updatePosition();
             }
         }
+        */
     }
 
     public void resetVelocities() {
@@ -92,7 +92,14 @@ public class PhysicsManager {
         }
     }
 
+    public void initWorld() {
+        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
+            liquidFunEngine.initWorld();
+        }
+    }
+
     public void clearWorld() {
+        getObjectList().clear();
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
             liquidFunEngine.clearWorld();
         }

@@ -1,4 +1,4 @@
-package com.subrat.Oxygen.physics;
+package com.subrat.Oxygen.physics.engines;
 
 import java.util.ArrayList;
 
@@ -29,11 +29,6 @@ public class LiquidFunEngine {
 
 	private SparseArray<Body> objectList = new SparseArray<Body>();
 	
-	public LiquidFunEngine() {
-		initializeWorld();
-		createParticleSystem();
-	}
-	
 	public void clearWorld() {
 		if (world != null) {
 			for(int i = 0; i < objectList.size(); i++) {
@@ -47,9 +42,10 @@ public class LiquidFunEngine {
 		objectList.clear();
 	}
 	
-	private void initializeWorld() {
+	public void initWorld() {
 		clearWorld();
 		world = new World(0, 0);
+		createParticleSystem();
 	}
 	
 	public void stepWorld(float stepDuration) {

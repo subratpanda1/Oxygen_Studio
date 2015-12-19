@@ -15,24 +15,6 @@ import java.util.ArrayList;
  * Created by subrat.panda on 18/12/15.
  */
 public class HadaGraphicsEngine {
-    private static ArrayList<DrawableObject> objectList = new ArrayList<DrawableObject>();
-    public static ArrayList<DrawableObject> getObjectList() { return objectList; }
-
-    private static ArrayList<DrawableCircle> particleList = new ArrayList<DrawableCircle>();
-    public static ArrayList<DrawableCircle> getParticleList() { return particleList; }
-
-    private static Paint waterPainter = null;
-
-    protected static Paint getWaterPainter() {
-        if (waterPainter == null) {
-            waterPainter = new Paint();
-            waterPainter.setColor(Color.CYAN);
-            waterPainter.setStyle(Paint.Style.STROKE);
-            waterPainter.setStrokeWidth(MathUtils.getMathUtils().getPixelFromMeter(Configuration.PARTICLE_RADIUS / 4));
-        }
-        return waterPainter;
-    }
-
     private static HadaGraphicsEngine hadaGraphicsEngine = null;
 
     public static HadaGraphicsEngine getHadaGraphicsEngine() {
@@ -40,7 +22,26 @@ public class HadaGraphicsEngine {
         return hadaGraphicsEngine;
     }
 
-    public static void drawParticles(Canvas canvas) {
+    private ArrayList<DrawableObject> objectList = new ArrayList<DrawableObject>();
+    public ArrayList<DrawableObject> getObjectList() { return objectList; }
+
+    private ArrayList<DrawableCircle> particleList = new ArrayList<DrawableCircle>();
+    public ArrayList<DrawableCircle> getParticleList() { return particleList; }
+
+    private Paint waterPainter = null;
+
+    public HadaGraphicsEngine() {
+        waterPainter = new Paint();
+        waterPainter.setColor(Color.CYAN);
+        waterPainter.setStyle(Paint.Style.STROKE);
+        waterPainter.setStrokeWidth(MathUtils.getMathUtils().getPixelFromMeter(Configuration.PARTICLE_RADIUS / 4));
+    }
+
+    protected Paint getWaterPainter() {
+        return waterPainter;
+    }
+
+    public void drawParticles(Canvas canvas) {
         float[] points = new float[2 * particleList.size()];
         int i = 0;
         for (DrawableCircle drawableCircle : particleList) {

@@ -1,4 +1,4 @@
-package com.subrat.Oxygen.backendRoutines;
+package com.subrat.Oxygen.utilities;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -24,8 +24,24 @@ public class ShakeDetector implements SensorEventListener {
     private long mShakeTimestamp;
     private int mShakeCount;
 
-    public float[] accelValues = new float[3];
-    public float[] magnetValues = new float[3];
+    private float[] accelValues = new float[3];
+    private float[] magnetValues = new float[3];
+
+    public float[] getAccelValues() {
+        return accelValues;
+    }
+
+    public void setAccelValues(float[] accelValues) {
+        this.accelValues = accelValues;
+    }
+
+    public float[] getMagnetValues() {
+        return magnetValues;
+    }
+
+    public void setMagnetValues(float[] magnetValues) {
+        this.magnetValues = magnetValues;
+    }
 
     public void setOnShakeListener(OnShakeListener listener) {
         this.mListener = listener;

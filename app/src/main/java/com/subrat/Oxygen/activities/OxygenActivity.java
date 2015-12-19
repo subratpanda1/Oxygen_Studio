@@ -9,8 +9,8 @@ import android.view.View;
 import android.widget.Button;
 
 import com.subrat.Oxygen.R;
+import com.subrat.Oxygen.engine.Simulator;
 import com.subrat.Oxygen.graphics.HadaGraphicsEngine;
-import com.subrat.Oxygen.physics.LiquidFunEngine;
 import com.subrat.Oxygen.backendRoutines.UpdateObjectsInAThread;
 import com.subrat.Oxygen.customviews.OxygenView;
 import com.subrat.Oxygen.physics.PhysicsManager;
@@ -41,15 +41,7 @@ public class OxygenActivity extends Activity {
         oxygenView = (OxygenView) findViewById(R.id.view);
         oxygenView.oxygenActivity = this;
 
-        try {
-        	Thread.sleep(3000);
-        } catch (Exception ex) {
-        	
-        }
-
         context = this;
-
-        updateObjectsInAThread = new UpdateObjectsInAThread(this, oxygenView);
 
         onClickListener = new Button.OnClickListener() {
             public void onClick(View view) {
@@ -62,6 +54,14 @@ public class OxygenActivity extends Activity {
         if (!Configuration.USE_LIQUIDFUN_PHYSICS) {
         	button.setVisibility(View.GONE);
         }
+
+        Runnable runnable = new Runnable() {
+            public void run() {
+
+            }
+        };
+
+        Simulator.initSimulator(runnable);
         
         startSimulation();
     }
@@ -69,11 +69,19 @@ public class OxygenActivity extends Activity {
     public static Context getContext() { return context; }
     
     public void stopSimulation() {
-        updateObjectsInAThread.stopThread();
+        Simulator.getSimulator().stopSimulator();
     }
 
     public void startSimulation() {
-        updateObjectsInAThread.startThread();
+        Simulator.getSimulator().startSimulator();
+    }
+
+    public void pauseSimulation() {
+        Simulator.getSimulator().pauseSimulator();
+    }
+
+    public void resumeSimulation() {
+        Simulator.getSimulator().resumeSimulator();
     }
 
     @Override
@@ -81,10 +89,8 @@ public class OxygenActivity extends Activity {
         super.onBackPressed();
         HadaGraphicsEngine.getHadaGraphicsEngine().getObjectList().clear();
         HadaGraphicsEngine.getHadaGraphicsEngine().getParticleList().clear();
+        stopSimulation();
         context = null;
-
-        PhysicsManager.getPhysicsManager().clearWorld();
-
         finish();
     }
 

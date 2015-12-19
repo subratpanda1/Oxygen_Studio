@@ -2,10 +2,7 @@ package com.subrat.Oxygen.utilities;
 
 import android.graphics.PointF;
 
-import com.subrat.Oxygen.graphics.object.DrawableCircle;
-import com.subrat.Oxygen.graphics.object.DrawableLine;
-import com.subrat.Oxygen.graphics.object.DrawableObject;
-import com.subrat.Oxygen.physics.HadaPhysicsEngine;
+import com.subrat.Oxygen.physics.engines.HadaPhysicsEngine;
 import com.subrat.Oxygen.physics.PhysicsManager;
 import com.subrat.Oxygen.physics.PhysicsObjectBuilder;
 import com.subrat.Oxygen.physics.object.PhysicsCircle;
