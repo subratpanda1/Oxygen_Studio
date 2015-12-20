@@ -9,10 +9,12 @@ import com.subrat.Oxygen.physics.object.PhysicsCircle;
 import com.subrat.Oxygen.physics.object.PhysicsLine;
 import com.subrat.Oxygen.physics.object.PhysicsObject;
 import com.subrat.Oxygen.physics.object.PhysicsWaterParticle;
+import com.subrat.Oxygen.simulation.Simulator;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by subrat.panda on 19/12/15.
@@ -30,10 +32,44 @@ public class PhysicsManager {
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
             liquidFunEngine = new LiquidFunEngine();
         }
+        objectListLock = new ReentrantLock();
+        objectList = new ArrayList<>();
     }
 
-    private ArrayList<PhysicsObject> objectList = new ArrayList<>();
-    public ArrayList<PhysicsObject> getObjectList() { return objectList; }
+    public ReentrantLock objectListLock;
+    private ArrayList<PhysicsObject> objectList = null;
+    private boolean objectListReadInProgress;
+    public void startObjectListAccess() {
+        objectListLock.lock();
+        objectListReadInProgress = true;
+    }
+    public void stopObjectListAccess() {
+        objectListReadInProgress = false;
+        objectListLock.unlock();
+    }
+
+    public PhysicsObject getPhysicsObject(int i) {
+        if (objectListReadInProgress == false) return null;
+        if (objectList.size() <= i) return null;
+        return objectList.get(i);
+    }
+
+    public int getObjectListSize() {
+        if (objectListReadInProgress == false) return 0;
+        return objectList.size();
+    }
+
+    public void clearObjectList() {
+        startObjectListAccess();
+        objectList.clear();
+        stopObjectListAccess();
+    }
+
+    public void addPhysicsObject(PhysicsObject physicsObject) {
+        startObjectListAccess();
+        objectList.add(physicsObject);
+        stopObjectListAccess();
+    }
 
     public LiquidFunEngine getLiquidFunEngine() {
         return liquidFunEngine;
@@ -46,12 +82,16 @@ public class PhysicsManager {
     }
 
     public void resetVelocities() {
-        for (PhysicsObject object : getObjectList()) {
+        startObjectListAccess();
+        int size = getObjectListSize();
+        for (int i = 0; i < size; ++i) {
+            PhysicsObject object = getPhysicsObject(i);
             if (object instanceof PhysicsCircle) {
                 PhysicsCircle physicsCircle = (PhysicsCircle) object;
                 physicsCircle.initRandomVelocity();
             }
         }
+        stopObjectListAccess();
     }
 
     public void editLine(PhysicsLine line) {
@@ -62,6 +102,7 @@ public class PhysicsManager {
 
     public void addWater() {
         float shift = MathUtils.getMathUtils().getRandom(OxygenActivity.getWorldWidth() / 5, (OxygenActivity.getWorldWidth() * 3) / 5);
+        Simulator.getSimulator().pauseSimulator();
         for (int x = 1; x < 5; ++x) {
             for (int y = 1; y < 5; ++y) {
                 float borderDistance = 2 * Configuration.CANVAS_MARGIN + 2 * Configuration.LINE_THICKNESS;
@@ -70,6 +111,7 @@ public class PhysicsManager {
                 PhysicsObjectBuilder.getPhysicsObjectBuilder().createPhysicsWaterParticle(position);
             }
         }
+        Simulator.getSimulator().resumeSimulator();
     }
 
     public void initWorld() {
@@ -79,7 +121,8 @@ public class PhysicsManager {
     }
 
     public void clearWorld() {
-        getObjectList().clear();
+        clearObjectList();
+
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
             liquidFunEngine.clearWorld();
         }
@@ -93,7 +136,13 @@ public class PhysicsManager {
 
     public void updateAllObjects() {
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-            liquidFunEngine.updateAllPhysicsObjectsFromWorld(getObjectList());
+            startObjectListAccess();
+            int size = getObjectListSize();
+            for (int i = 0; i < size; ++i) {
+                PhysicsObject physicsObject = getPhysicsObject(i);
+                liquidFunEngine.updatePhysicsObjectFromWorldObject(physicsObject);
+            }
+            stopObjectListAccess();
         }
     }
 
@@ -104,8 +153,10 @@ public class PhysicsManager {
         String objectPosition;
         String objectRotation;
         String printString = "";
-
-        for (PhysicsObject object : objectList) {
+        startObjectListAccess();
+        int size = getObjectListSize();
+        for (int i = 0; i < size; ++i) {
+            PhysicsObject object = getPhysicsObject(i);
             ++serial;
             objectId = "" + object.getObjectId();
             if (object instanceof PhysicsCircle) {
@@ -125,5 +176,6 @@ public class PhysicsManager {
             }
             Log.i("Subrat", printString);
         }
+        stopObjectListAccess();
     }
 }

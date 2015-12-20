@@ -1,6 +1,7 @@
 package com.subrat.Oxygen.physics;
 
 import android.graphics.PointF;
+import android.util.Log;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
 import com.subrat.Oxygen.physics.object.PhysicsCircle;
@@ -45,17 +46,19 @@ public class PhysicsObjectBuilder {
         PointF bottomLeft = new PointF(canvasMargin, OxygenActivity.getWorldHeight() - canvasMargin);
         PointF bottomRight = new PointF(OxygenActivity.getWorldWidth() - canvasMargin, OxygenActivity.getWorldHeight() - canvasMargin);
 
-        if (PhysicsManager.getPhysicsManager().getObjectList().isEmpty()) {
+        PhysicsManager.getPhysicsManager().startObjectListAccess();
+        if (PhysicsManager.getPhysicsManager().getObjectListSize() == 0) {
             createPhysicsLine(topLeft, topRight);
             createPhysicsLine(bottomLeft, bottomRight);
             createPhysicsLine(topLeft, bottomLeft);
             createPhysicsLine(topRight, bottomRight);
         } else {
-            ((PhysicsLine) PhysicsManager.getPhysicsManager().getObjectList().get(0)).editLine(topLeft, topRight);
-            ((PhysicsLine) PhysicsManager.getPhysicsManager().getObjectList().get(1)).editLine(bottomLeft, bottomRight);
-            ((PhysicsLine) PhysicsManager.getPhysicsManager().getObjectList().get(2)).editLine(topLeft, bottomLeft);
-            ((PhysicsLine) PhysicsManager.getPhysicsManager().getObjectList().get(3)).editLine(topRight, bottomRight);
+            ((PhysicsLine) PhysicsManager.getPhysicsManager().getPhysicsObject(0)).editLine(topLeft, topRight);
+            ((PhysicsLine) PhysicsManager.getPhysicsManager().getPhysicsObject(1)).editLine(bottomLeft, bottomRight);
+            ((PhysicsLine) PhysicsManager.getPhysicsManager().getPhysicsObject(2)).editLine(topLeft, bottomLeft);
+            ((PhysicsLine) PhysicsManager.getPhysicsManager().getPhysicsObject(3)).editLine(topRight, bottomRight);
         }
+        PhysicsManager.getPhysicsManager().stopObjectListAccess();
     }
 
     public PhysicsCircle constructPhysicsCircle(PointF center, float radius, int rotation) {
@@ -105,7 +108,7 @@ public class PhysicsObjectBuilder {
     public PhysicsCircle createPhysicsCircle(PointF center, float radius, int rotation) {
         PhysicsCircle circle = constructPhysicsCircle(center, radius, rotation);
         circle.setObjectId(getNextObjectId());
-        PhysicsManager.getPhysicsManager().getObjectList().add(circle);
+        PhysicsManager.getPhysicsManager().addPhysicsObject(circle);
 
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
             PhysicsManager.getPhysicsManager().getLiquidFunEngine().createObjectInWorld(circle);
@@ -117,7 +120,7 @@ public class PhysicsObjectBuilder {
     public PhysicsCircle createPhysicsCircle(ArrayList<PointF> points) {
         PhysicsCircle circle = constructPhysicsCircle(points);
         circle.setObjectId(getNextObjectId());
-        PhysicsManager.getPhysicsManager().getObjectList().add(circle);
+        PhysicsManager.getPhysicsManager().addPhysicsObject(circle);
 
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
             PhysicsManager.getPhysicsManager().getLiquidFunEngine().createObjectInWorld(circle);
@@ -129,7 +132,7 @@ public class PhysicsObjectBuilder {
     public PhysicsLine createPhysicsLine(PointF start, PointF end) {
         PhysicsLine line = constructPhysicsLine(start, end);
         line.setObjectId(getNextObjectId());
-        PhysicsManager.getPhysicsManager().getObjectList().add(line);
+        PhysicsManager.getPhysicsManager().addPhysicsObject(line);
 
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
             PhysicsManager.getPhysicsManager().getLiquidFunEngine().createObjectInWorld(line);
@@ -141,7 +144,7 @@ public class PhysicsObjectBuilder {
     public PhysicsLine createPhysicsLine(ArrayList<PointF> points) {
         PhysicsLine line = constructPhysicsLine(points);
         line.setObjectId(getNextObjectId());
-        PhysicsManager.getPhysicsManager().getObjectList().add(line);
+        PhysicsManager.getPhysicsManager().addPhysicsObject(line);
 
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
             PhysicsManager.getPhysicsManager().getLiquidFunEngine().createObjectInWorld(line);
@@ -153,7 +156,7 @@ public class PhysicsObjectBuilder {
     public PhysicsWaterParticle createPhysicsWaterParticle(PointF position) {
         PhysicsWaterParticle physicsWaterParticle = constructPhysicsWaterParticle(position);
         physicsWaterParticle.setObjectId(getNextObjectId());
-        PhysicsManager.getPhysicsManager().getObjectList().add(physicsWaterParticle);
+        PhysicsManager.getPhysicsManager().addPhysicsObject(physicsWaterParticle);
 
         if (Configuration.USE_LIQUIDFUN_PHYSICS) {
             PhysicsManager.getPhysicsManager().getLiquidFunEngine().createObjectInWorld(physicsWaterParticle);

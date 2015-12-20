@@ -1,11 +1,11 @@
 package com.subrat.Oxygen.graphics;
 
-import android.graphics.PointF;
 import android.util.Log;
 
 import com.subrat.Oxygen.graphics.object.DrawableCircle;
 import com.subrat.Oxygen.graphics.object.DrawableLine;
 import com.subrat.Oxygen.graphics.object.DrawableObject;
+import com.subrat.Oxygen.physics.PhysicsManager;
 import com.subrat.Oxygen.physics.object.PhysicsObject;
 import com.subrat.Oxygen.utilities.MathUtils;
 
@@ -58,19 +58,24 @@ public class FrameBuffer {
         return readFrameBuffer.size();
     }
 
-    public void writeToFrameBuffer(ArrayList<PhysicsObject> physicsObjects) {
+    public void writeToFrameBuffer() {
         try {
             writeLock.lock();
             writeFrameBuffer.clear();
-            for (PhysicsObject physicsObject : physicsObjects) {
+            PhysicsManager.getPhysicsManager().startObjectListAccess();
+            int size = PhysicsManager.getPhysicsManager().getObjectListSize();
+            for (int i = 0; i < size; ++i) {
+                PhysicsObject physicsObject = PhysicsManager.getPhysicsManager().getPhysicsObject(i);
                 DrawableObject drawableObject = GraphicsObjectBuilder.getGraphicsObjectBuilder().buildObject(physicsObject);
                 writeFrameBuffer.add(drawableObject);
             }
+            PhysicsManager.getPhysicsManager().stopObjectListAccess();
 
             readLock.lock();
             ArrayList<DrawableObject> tmpFrameBuffer = readFrameBuffer;
             readFrameBuffer = writeFrameBuffer;
             writeFrameBuffer = tmpFrameBuffer;
+            // printAllObjects();
         } catch (Exception e) {
             Log.e("Subrat", e.getMessage(), e);
             throw e;

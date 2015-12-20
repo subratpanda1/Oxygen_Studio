@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.subrat.Oxygen.R;
-import com.subrat.Oxygen.engine.Simulator;
+import com.subrat.Oxygen.simulation.Simulator;
 import com.subrat.Oxygen.graphics.FrameBuffer;
 import com.subrat.Oxygen.graphics.HadaGraphicsEngine;
 import com.subrat.Oxygen.customviews.OxygenView;

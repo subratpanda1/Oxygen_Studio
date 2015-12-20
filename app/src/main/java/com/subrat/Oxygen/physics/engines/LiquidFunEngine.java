@@ -80,9 +80,11 @@ public class LiquidFunEngine implements PhysicsEngineInterface {
 		}
 
 		if (object instanceof PhysicsCircle) {
-			PhysicsCircle physicsCircle = (PhysicsCircle)object;
+			PhysicsCircle physicsCircle = (PhysicsCircle) object;
 			Body circleBody = createCircle(physicsCircle);
-			objectMap.put(physicsCircle.getObjectId(), circleBody);
+			if (circleBody != null) {
+				objectMap.put(physicsCircle.getObjectId(), circleBody);
+			}
 		} else if (object instanceof PhysicsLine) {
 			PhysicsLine physicsLine = (PhysicsLine)object;
 			Body lineBody = createLine(physicsLine);
@@ -106,12 +108,6 @@ public class LiquidFunEngine implements PhysicsEngineInterface {
 			// TODO: Particle deletion needs reindexing in particleMap
 			// particleSystem.destroyParticle(object.getObjectId(), false);
 			// particleMap.remove(object.getObjectId());
-		}
-	}
-
-	public void updateAllPhysicsObjectsFromWorld(ArrayList<PhysicsObject> objects) {
-		for (PhysicsObject object : objects) {
-			updatePhysicsObjectFromWorldObject(object);
 		}
 	}
 
@@ -190,6 +186,10 @@ public class LiquidFunEngine implements PhysicsEngineInterface {
 		fixtureDef.setFriction(1F);
 		
 		Body circleBody = world.createBody(circleBodyDef);
+		if (circleBody == null) {
+			Log.e("Subrat", "Error creating body for " + physicsCircle.getObjectId());
+			return null;
+		}
 		circleBody.createFixture(fixtureDef);
 		
 		circleShape.delete();

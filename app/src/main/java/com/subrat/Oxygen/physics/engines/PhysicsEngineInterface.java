@@ -19,5 +19,4 @@ public interface PhysicsEngineInterface {
     void deleteObjectFromWorld(PhysicsObject object);
     void updatePhysicsObjectFromWorldObject(PhysicsObject object);
     void updateWorldObjectFromPhysicsObject(PhysicsObject object);
-    void updateAllPhysicsObjectsFromWorld(ArrayList<PhysicsObject> objects);
 }

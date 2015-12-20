@@ -38,6 +38,7 @@ public class HadaGraphicsEngine {
     private Paint textPainter = null;
 
     private Map<Integer, Bitmap> bitmapCache = null;
+    boolean renderingInProgress;
 
     // Repeat Task
     private Handler repeatHandler;
@@ -57,6 +58,9 @@ public class HadaGraphicsEngine {
         textPainter.setTextSize(40);
 
         bitmapCache = new HashMap<>();
+
+        repeatTaskRunning = false;
+        renderingInProgress = false;
     }
 
     public Bitmap getScaledBitmap(int radius) {
@@ -120,9 +124,15 @@ public class HadaGraphicsEngine {
         repeatRunnable = new Runnable() {
             @Override
             public void run() {
-                oxygenView.invalidate();
-                Statistics.getStatistics().incrementNumRenders();
-                repeatHandler.postDelayed(repeatRunnable, (int)Configuration.REFRESH_INTERVAL * 1000/*in msec*/);
+                if (renderingInProgress) {
+                    repeatHandler.postDelayed(repeatRunnable, 10);
+                } else {
+                    repeatHandler.postDelayed(repeatRunnable, (int) (Configuration.REFRESH_INTERVAL * 1000)/*in msec*/);
+                    renderingInProgress = true;
+                    oxygenView.invalidate();
+                    Statistics.getStatistics().incrementNumRenders();
+                    renderingInProgress = false;
+                }
             }
         };
     }
@@ -140,7 +150,7 @@ public class HadaGraphicsEngine {
     }
 
     public void showStatistics(Canvas canvas) {
-        canvas.drawText("Physics: " + Statistics.getStatistics().getNumPhysicsUpdates(), 40, 60, textPainter);
-        canvas.drawText("Renders: " + Statistics.getStatistics().getNumRenders(), 40, 90, textPainter);
+        canvas.drawText("Renders: " + Statistics.getStatistics().getNumRenders(), 40, 60, textPainter);
+        canvas.drawText("Physics: " + Statistics.getStatistics().getNumPhysicsUpdates(), 40, 90, textPainter);
     }
 }

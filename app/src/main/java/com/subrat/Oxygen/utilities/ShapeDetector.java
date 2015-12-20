@@ -71,11 +71,16 @@ public class ShapeDetector {
 
         // Do not create if overlapping with other circles
         PhysicsCircle physicsCircle = PhysicsObjectBuilder.getPhysicsObjectBuilder().constructPhysicsCircle(points);
-        for (PhysicsObject object : PhysicsManager.getPhysicsManager().getObjectList()) {
+        PhysicsManager.getPhysicsManager().startObjectListAccess();
+        int size = PhysicsManager.getPhysicsManager().getObjectListSize();
+        for (int i = 0; i < size; ++i) {
+            PhysicsObject object = PhysicsManager.getPhysicsManager().getPhysicsObject(i);
             if (HadaPhysicsEngine.getHadaPhysicsEngine().checkOverlap(physicsCircle, object)) {
+                PhysicsManager.getPhysicsManager().stopObjectListAccess();
                 return false;
             }
         }
+        PhysicsManager.getPhysicsManager().stopObjectListAccess();
 
         return true;
     }

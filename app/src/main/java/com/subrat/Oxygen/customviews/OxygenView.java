@@ -83,7 +83,7 @@ public class OxygenView extends View implements View.OnTouchListener {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 drawingMode = true;
-                // oxygenActivity.pauseSimulation();
+                oxygenActivity.pauseSimulation();
                 break;
             case MotionEvent.ACTION_MOVE:
                 break;
@@ -91,7 +91,7 @@ public class OxygenView extends View implements View.OnTouchListener {
                 PhysicsObjectBuilder.getPhysicsObjectBuilder().buildObject(points);
                 points.clear();
                 drawingMode = false;
-                // oxygenActivity.resumeSimulation();
+                oxygenActivity.resumeSimulation();
                 break;
             default:
                 return false;

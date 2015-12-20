@@ -12,12 +12,14 @@ public class Statistics {
         return statistics;
     }
 
-    private AtomicInteger numPhysicsUpdates;
+    private int testRenders;
     private AtomicInteger numRenders;
+    private AtomicInteger numPhysicsUpdates;
 
     private Statistics() {
-        numPhysicsUpdates = new AtomicInteger(0);
         numRenders = new AtomicInteger(0);
+        numPhysicsUpdates = new AtomicInteger(0);
+        testRenders = 0;
     }
 
     public long getNumPhysicsUpdates() {
@@ -34,6 +36,7 @@ public class Statistics {
 
     public void incrementNumRenders() {
         numRenders.incrementAndGet();
+        ++testRenders;
     }
 
     public void resetStatistics() {

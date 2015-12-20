@@ -1,4 +1,4 @@
-package com.subrat.Oxygen.engine;
+package com.subrat.Oxygen.simulation;
 
 import android.graphics.PointF;
 import android.os.Handler;
@@ -9,11 +9,12 @@ import com.subrat.Oxygen.activities.OxygenActivity;
 import com.subrat.Oxygen.graphics.FrameBuffer;
 import com.subrat.Oxygen.physics.PhysicsManager;
 import com.subrat.Oxygen.utilities.DeviceSensorManager;
-import com.subrat.Oxygen.utilities.MathUtils;
 import com.subrat.Oxygen.utilities.Statistics;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by subrat.panda on 19/12/15.
@@ -33,7 +34,22 @@ public class Simulator {
             return value;
         }
     }
-    AtomicInteger threadInstruction = null;
+
+    private Lock lock;
+    private ThreadInstruction threadInstruction = null;
+
+    public ThreadInstruction getThreadInstruction() {
+        lock.lock();
+        ThreadInstruction value = threadInstruction;
+        lock.unlock();
+        return value;
+    }
+
+    public void setThreadInstruction(ThreadInstruction instruction) {
+        lock.lock();
+        threadInstruction = instruction;
+        lock.unlock();
+    }
 
     private Handler threadHandler = null;
     private Thread thread = null;
@@ -57,23 +73,25 @@ public class Simulator {
 
     private Simulator() {
         deviceSensorManager = DeviceSensorManager.getDeviceSensorManager();
-        threadInstruction = new AtomicInteger(ThreadInstruction.NO_OP.getValue());
+        threadInstruction = ThreadInstruction.NO_OP;
+        lock = new ReentrantLock();
     }
 
     private void simulatorEventLoop() {
         Date prevDate = null;
         while (true) {
-            if (threadInstruction.get() == ThreadInstruction.THREAD_STOP.getValue()) {
+            ThreadInstruction instruction = getThreadInstruction();
+            if (instruction == ThreadInstruction.THREAD_STOP) {
                 break;
-            } else if (threadInstruction.get() == ThreadInstruction.THREAD_CONTINUE.getValue()) {
+            } else if (instruction == ThreadInstruction.THREAD_CONTINUE) {
                 if (OxygenActivity.getContext() == null) return;
                 updateSensorReading();
                 Date currentDate = new Date();
                 if (prevDate != null) {
                     long timeDiff = currentDate.getTime() - prevDate.getTime();
-                    if (timeDiff < 5) {
+                    if (timeDiff < 30) {
                         try {
-                            Thread.sleep(5 - timeDiff);
+                            Thread.sleep(30 - timeDiff);
                         } catch(InterruptedException ex) {
                             thread.interrupt();
                         }
@@ -83,18 +101,25 @@ public class Simulator {
                     PhysicsManager.getPhysicsManager().step((float) timeDiff / 1000);
                 }
                 PhysicsManager.getPhysicsManager().updateAllObjects();
-                FrameBuffer.getFrameBuffer().writeToFrameBuffer(PhysicsManager.getPhysicsManager().getObjectList());
+                // PhysicsManager.getPhysicsManager().printAllObjects();
+                FrameBuffer.getFrameBuffer().writeToFrameBuffer();
                 Statistics.getStatistics().incrementNumPhysicsUpdates();
                 threadHandler.sendMessage(threadHandler.obtainMessage());
                 prevDate = currentDate;
-            } else if (threadInstruction.get() == ThreadInstruction.THREAD_PAUSE.getValue()) {
+            } else if (instruction == ThreadInstruction.THREAD_PAUSE) {
+                prevDate = null;
+                try {
+                    Thread.sleep(30);
+                } catch(InterruptedException ex) {
+                    thread.interrupt();
+                }
                 // pauseSimulation
             }
         }
     }
 
     public void startSimulator() {
-        threadInstruction.set(ThreadInstruction.NO_OP.getValue());
+        setThreadInstruction(ThreadInstruction.NO_OP);
 
         if (thread == null) {
             thread = new Thread(new Runnable() {
@@ -110,21 +135,24 @@ public class Simulator {
 
     public void stopSimulator() {
         pauseSimulator();
-        threadInstruction.set(ThreadInstruction.THREAD_STOP.getValue());
+        setThreadInstruction(ThreadInstruction.THREAD_STOP);
         thread = null;
         PhysicsManager.getPhysicsManager().clearWorld();
     }
 
     public void pauseSimulator() {
+        setThreadInstruction(ThreadInstruction.THREAD_PAUSE);
         deviceSensorManager.unregisterShakeListener();
         deviceSensorManager.unregisterSensors();
-        threadInstruction.set(ThreadInstruction.THREAD_PAUSE.getValue());
     }
 
     public void resumeSimulator() {
+        if (thread.getState().equals(Thread.State.WAITING)) {
+            Log.e("Subrat", "Thread is waiting");
+        }
         deviceSensorManager.registerShakeListener(getShakeHandlerRunnable());
         deviceSensorManager.registerSensors();
-        threadInstruction.set(ThreadInstruction.THREAD_CONTINUE.getValue());
+        setThreadInstruction(ThreadInstruction.THREAD_CONTINUE);
     }
 
     private Runnable getShakeHandlerRunnable() {
@@ -140,6 +168,7 @@ public class Simulator {
 
     private void updateSensorReading() {
         PointF gravity = DeviceSensorManager.getDeviceSensorManager().getAcceleration();
+        gravity.x = -gravity.x;
         gravity.y = -gravity.y;
         PhysicsManager.getPhysicsManager().setGravity(gravity);
     }
