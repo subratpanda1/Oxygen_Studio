@@ -2,17 +2,18 @@ package com.subrat.Oxygen.simulation;
 
 import android.graphics.PointF;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
 import com.subrat.Oxygen.graphics.FrameBuffer;
 import com.subrat.Oxygen.physics.PhysicsManager;
+import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.DeviceSensorManager;
 import com.subrat.Oxygen.utilities.Statistics;
 
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -37,6 +38,13 @@ public class Simulator {
 
     private Lock lock;
     private ThreadInstruction threadInstruction = null;
+
+    // Repeat Task
+    private Handler repeatHandler;
+    Runnable repeatRunnable;
+    boolean repeatTaskRunning;
+    Date prevSimulationTime;
+    boolean updateInProgress;
 
     public ThreadInstruction getThreadInstruction() {
         lock.lock();
@@ -79,6 +87,7 @@ public class Simulator {
 
     private void simulatorEventLoop() {
         Date prevDate = null;
+        final int refreshMsec = 1000 / Configuration.PHYSICS_FPS;
         while (true) {
             ThreadInstruction instruction = getThreadInstruction();
             if (instruction == ThreadInstruction.THREAD_STOP) {
@@ -89,9 +98,9 @@ public class Simulator {
                 Date currentDate = new Date();
                 if (prevDate != null) {
                     long timeDiff = currentDate.getTime() - prevDate.getTime();
-                    if (timeDiff < 30) {
+                    if (timeDiff < refreshMsec) {
                         try {
-                            Thread.sleep(30 - timeDiff);
+                            Thread.sleep(refreshMsec - timeDiff);
                         } catch(InterruptedException ex) {
                             thread.interrupt();
                         }
@@ -109,13 +118,74 @@ public class Simulator {
             } else if (instruction == ThreadInstruction.THREAD_PAUSE) {
                 prevDate = null;
                 try {
-                    Thread.sleep(30);
+                    Thread.sleep(refreshMsec);
                 } catch(InterruptedException ex) {
                     thread.interrupt();
                 }
-                // pauseSimulation
             }
         }
+    }
+
+    private void initSimulatorLoop() {
+        Looper.prepare();
+        updateInProgress = false;
+        final int refreshMsec = 1000 / Configuration.PHYSICS_FPS;
+        repeatHandler = new Handler();
+        repeatRunnable = new Runnable() {
+            @Override
+            public void run() {
+                ThreadInstruction instruction = getThreadInstruction();
+                if (instruction == ThreadInstruction.THREAD_STOP) {
+                    prevSimulationTime = null;
+                    stopSimulatorLoop();
+                } else if (instruction == ThreadInstruction.THREAD_CONTINUE) {
+                    if (OxygenActivity.getContext() == null) return;
+                    updateSensorReading();
+                    Date currentTime = new Date();
+                    long timeElapsed;
+
+                    if (prevSimulationTime == null) {
+                        timeElapsed = refreshMsec;
+                    } else {
+                        timeElapsed = currentTime.getTime() - prevSimulationTime.getTime();
+                    }
+
+                    if (updateInProgress) {
+                        repeatHandler.postDelayed(repeatRunnable, refreshMsec);
+                    } else if (timeElapsed < refreshMsec) {
+                        repeatHandler.postDelayed(repeatRunnable, refreshMsec - timeElapsed);
+                    } else {
+                        PhysicsManager.getPhysicsManager().step(((float) timeElapsed) / 1000L);
+                        prevSimulationTime = currentTime;
+                        repeatHandler.postDelayed(repeatRunnable, refreshMsec/*in msec*/);
+
+                        updateInProgress = true;
+                        PhysicsManager.getPhysicsManager().updateAllObjects();
+                        // PhysicsManager.getPhysicsManager().printAllObjects();
+                        FrameBuffer.getFrameBuffer().writeToFrameBuffer();
+                        Statistics.getStatistics().incrementNumPhysicsUpdates();
+                        threadHandler.sendMessage(threadHandler.obtainMessage());
+                        updateInProgress = false;
+                    }
+                } else if (instruction == ThreadInstruction.THREAD_PAUSE) {
+                    prevSimulationTime = null;
+                    repeatHandler.postDelayed(repeatRunnable, refreshMsec/*in msec*/);
+                }
+            }
+        };
+        Looper.loop();
+    }
+
+    private void startSimulatorLoop() {
+        if (repeatTaskRunning) return;
+        repeatRunnable.run();
+        repeatTaskRunning = true;
+    }
+
+    private void stopSimulatorLoop() {
+        if (!repeatTaskRunning) return;
+        repeatHandler.removeCallbacks(repeatRunnable);
+        repeatTaskRunning = false;
     }
 
     public void startSimulator() {
@@ -124,7 +194,9 @@ public class Simulator {
         if (thread == null) {
             thread = new Thread(new Runnable() {
                 public void run() {
-                    simulatorEventLoop();
+                    // simulatorEventLoop();
+                    initSimulatorLoop();
+                    startSimulatorLoop();
                 }
             });
             thread.start();

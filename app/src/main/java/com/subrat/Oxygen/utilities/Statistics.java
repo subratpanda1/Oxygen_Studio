@@ -1,5 +1,8 @@
 package com.subrat.Oxygen.utilities;
 
+import android.util.Log;
+
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -12,35 +15,80 @@ public class Statistics {
         return statistics;
     }
 
-    private int testRenders;
     private AtomicInteger numRenders;
     private AtomicInteger numPhysicsUpdates;
+
+    private AtomicInteger renderFps;
+    private AtomicInteger physicsFps;
+
+    private Date prevRenderTime;
+    private Date prevPhysicsTime;
 
     private Statistics() {
         numRenders = new AtomicInteger(0);
         numPhysicsUpdates = new AtomicInteger(0);
-        testRenders = 0;
+        renderFps = new AtomicInteger(0);
+        physicsFps = new AtomicInteger(0);
     }
 
-    public long getNumPhysicsUpdates() {
+    public int getNumPhysicsUpdates() {
         return numPhysicsUpdates.get();
     }
 
     public void incrementNumPhysicsUpdates() {
+        Date currentDate = new Date();
         numPhysicsUpdates.incrementAndGet();
+        if (prevPhysicsTime != null) {
+            final int refreshMsec = 1000 / Configuration.PHYSICS_FPS;
+            long timeDiff = currentDate.getTime() - prevPhysicsTime.getTime();
+            /*
+            if (timeDiff < refreshMsec) {
+                Log.i("Subrat", "Here: Physics update in " + timeDiff + " msecs");
+            }
+            */
+            if (timeDiff > refreshMsec) {
+                physicsFps.set((int) (1000 / timeDiff));
+            }
+        }
+        prevPhysicsTime = currentDate;
     }
 
-    public long getNumRenders() {
+    public int getPhysicsFps() {
+        return physicsFps.get();
+    }
+
+    public int getNumRenders() {
         return numRenders.get();
     }
 
     public void incrementNumRenders() {
+        Date currentDate = new Date();
         numRenders.incrementAndGet();
-        ++testRenders;
+        if (prevRenderTime != null) {
+            final int refreshMsec = 1000 / Configuration.GRAPHICS_FPS;
+            long timeDiff = currentDate.getTime() - prevRenderTime.getTime();
+            /*
+            if (timeDiff < refreshMsec) {
+                Log.i("Subrat", "Here: Render update in " + timeDiff + " msecs");
+            }
+            */
+            if (timeDiff > refreshMsec) {
+                renderFps.set((int) (1000 / timeDiff));
+            }
+        }
+        prevRenderTime = currentDate;
+    }
+
+    public int getRenderFps() {
+        return renderFps.get();
     }
 
     public void resetStatistics() {
         numPhysicsUpdates.set(0);
         numRenders.set(0);
+        renderFps.set(0);
+        physicsFps.set(0);
+        prevRenderTime = null;
+        prevPhysicsTime = null;
     }
 }

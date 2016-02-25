@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.os.Handler;
+import android.util.Log;
 
 import com.google.fpl.liquidfun.Draw;
 import com.subrat.Oxygen.R;
@@ -20,6 +21,7 @@ import com.subrat.Oxygen.utilities.MathUtils;
 import com.subrat.Oxygen.utilities.Statistics;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,12 +40,12 @@ public class HadaGraphicsEngine {
     private Paint textPainter = null;
 
     private Map<Integer, Bitmap> bitmapCache = null;
-    boolean renderingInProgress;
 
     // Repeat Task
     private Handler repeatHandler;
     Runnable repeatRunnable;
     boolean repeatTaskRunning;
+    Date prevRenderTime;
 
     private HadaGraphicsEngine() {
         waterPainter = new Paint();
@@ -60,7 +62,6 @@ public class HadaGraphicsEngine {
         bitmapCache = new HashMap<>();
 
         repeatTaskRunning = false;
-        renderingInProgress = false;
     }
 
     public Bitmap getScaledBitmap(int radius) {
@@ -120,19 +121,44 @@ public class HadaGraphicsEngine {
     }
 
     public void initRenderLoop(final OxygenView oxygenView) {
+        final int refreshMsec = 1000 / Configuration.GRAPHICS_FPS;
         repeatHandler = new Handler();
         repeatRunnable = new Runnable() {
             @Override
             public void run() {
-                if (renderingInProgress) {
-                    repeatHandler.postDelayed(repeatRunnable, 10);
+                Date renderStartTime = new Date();
+                oxygenView.invalidate();
+                Statistics.getStatistics().incrementNumRenders();
+                Date renderEndTime = new Date();
+                long renderTime = renderEndTime.getTime() - renderStartTime.getTime();
+                if (renderTime < refreshMsec) {
+                    repeatHandler.postDelayed(repeatRunnable, refreshMsec - renderTime + 5);
                 } else {
-                    repeatHandler.postDelayed(repeatRunnable, (int) (Configuration.REFRESH_INTERVAL * 1000)/*in msec*/);
-                    renderingInProgress = true;
+                    repeatHandler.post(repeatRunnable);
+                }
+                /*
+                Date currentTime = new Date();
+                long timeElapsed;
+                if (prevRenderTime == null) {
+                    timeElapsed = refreshMsec;
+                } else {
+                    timeElapsed = currentTime.getTime() - prevRenderTime.getTime();
+                }
+                if (timeElapsed < refreshMsec) {
+                    repeatHandler.postDelayed(repeatRunnable, refreshMsec - timeElapsed);
+                } else {
                     oxygenView.invalidate();
                     Statistics.getStatistics().incrementNumRenders();
-                    renderingInProgress = false;
+                    currentTime = new Date();
+                    timeElapsed = currentTime.getTime() - prevRenderTime.getTime();
+                    prevRenderTime = currentTime;
+                    if (timeElapsed < refreshMsec) {
+                        repeatHandler.postDelayed(repeatRunnable, refreshMsec - timeElapsed);
+                    } else {
+                        repeatHandler.post(repeatRunnable);
+                    }
                 }
+                */
             }
         };
     }
@@ -151,6 +177,8 @@ public class HadaGraphicsEngine {
 
     public void showStatistics(Canvas canvas) {
         canvas.drawText("Renders: " + Statistics.getStatistics().getNumRenders(), 40, 60, textPainter);
-        canvas.drawText("Physics: " + Statistics.getStatistics().getNumPhysicsUpdates(), 40, 90, textPainter);
+        canvas.drawText("RenderFps: " + Statistics.getStatistics().getRenderFps(), 40, 90, textPainter);
+        canvas.drawText("Physics: " + Statistics.getStatistics().getNumPhysicsUpdates(), 40, 120, textPainter);
+        canvas.drawText("PhysicsFps: " + Statistics.getStatistics().getPhysicsFps(), 40, 150, textPainter);
     }
 }

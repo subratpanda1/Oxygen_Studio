@@ -9,11 +9,11 @@ import android.view.View;
 import android.widget.Button;
 
 import com.subrat.Oxygen.R;
-import com.subrat.Oxygen.simulation.Simulator;
 import com.subrat.Oxygen.graphics.FrameBuffer;
 import com.subrat.Oxygen.graphics.HadaGraphicsEngine;
 import com.subrat.Oxygen.customviews.OxygenView;
 import com.subrat.Oxygen.physics.PhysicsManager;
+import com.subrat.Oxygen.simulation.SimulatorNew;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.Statistics;
 
@@ -51,7 +51,7 @@ public class OxygenActivity extends Activity {
         };
 
         Statistics.getStatistics().resetStatistics();
-        Simulator.getSimulator().initSimulator(runnable);
+        SimulatorNew.getSimulator().initSimulator();
         startSimulation();
     }
 
@@ -59,21 +59,21 @@ public class OxygenActivity extends Activity {
     
     public void stopSimulation() {
         HadaGraphicsEngine.getHadaGraphicsEngine().stopRenderLoop();
-        Simulator.getSimulator().stopSimulator();
+        SimulatorNew.getSimulator().stopSimulator();
     }
 
     public void startSimulation() {
-        Simulator.getSimulator().startSimulator();
+        SimulatorNew.getSimulator().startSimulator();
         HadaGraphicsEngine.getHadaGraphicsEngine().initRenderLoop(oxygenView);
         HadaGraphicsEngine.getHadaGraphicsEngine().startRenderLoop();
     }
 
     public void pauseSimulation() {
-        Simulator.getSimulator().pauseSimulator();
+        SimulatorNew.getSimulator().pauseSimulator();
     }
 
     public void resumeSimulation() {
-        Simulator.getSimulator().resumeSimulator();
+        SimulatorNew.getSimulator().resumeSimulator();
     }
 
     @Override

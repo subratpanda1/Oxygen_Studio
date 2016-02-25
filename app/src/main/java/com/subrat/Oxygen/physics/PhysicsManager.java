@@ -10,6 +10,7 @@ import com.subrat.Oxygen.physics.object.PhysicsLine;
 import com.subrat.Oxygen.physics.object.PhysicsObject;
 import com.subrat.Oxygen.physics.object.PhysicsWaterParticle;
 import com.subrat.Oxygen.simulation.Simulator;
+import com.subrat.Oxygen.simulation.SimulatorNew;
 import com.subrat.Oxygen.utilities.Configuration;
 import com.subrat.Oxygen.utilities.MathUtils;
 
@@ -102,7 +103,7 @@ public class PhysicsManager {
 
     public void addWater() {
         float shift = MathUtils.getMathUtils().getRandom(OxygenActivity.getWorldWidth() / 5, (OxygenActivity.getWorldWidth() * 3) / 5);
-        Simulator.getSimulator().pauseSimulator();
+        SimulatorNew.getSimulator().pauseSimulator();
         for (int x = 1; x < 5; ++x) {
             for (int y = 1; y < 5; ++y) {
                 float borderDistance = 2 * Configuration.CANVAS_MARGIN + 2 * Configuration.LINE_THICKNESS;
@@ -111,7 +112,7 @@ public class PhysicsManager {
                 PhysicsObjectBuilder.getPhysicsObjectBuilder().createPhysicsWaterParticle(position);
             }
         }
-        Simulator.getSimulator().resumeSimulator();
+        SimulatorNew.getSimulator().resumeSimulator();
     }
 
     public void initWorld() {

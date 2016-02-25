@@ -45,6 +45,7 @@ public class HadaPhysicsEngine {
     }
 
     public boolean checkCollision(PhysicsObject object1, PhysicsObject object2) throws Exception {
+        float refreshInterval = (1000L / (float)Configuration.PHYSICS_FPS);
         if (object1 instanceof PhysicsCircle) {
             if (object1.getObjectId() == object2.getObjectId()) return false;
             PhysicsCircle circle1 = (PhysicsCircle) object1;
@@ -54,8 +55,8 @@ public class HadaPhysicsEngine {
                 float threshold = MathUtils.getMathUtils().getDistance(circle2.getCenter(), circle1.getCenter()) - (circle2.getRadius() + circle1.getRadius());
                 if (threshold < Configuration.COLLISION_THRESHOLD) {
                     // Check if circles get closer in next frame
-                    PointF thisPositionChange = MathUtils.getMathUtils().scalePoint(circle1.getVelocity(), Configuration.REFRESH_INTERVAL);
-                    PointF objectPositionChange = MathUtils.getMathUtils().scalePoint(circle2.getVelocity(), Configuration.REFRESH_INTERVAL);
+                    PointF thisPositionChange = MathUtils.getMathUtils().scalePoint(circle1.getVelocity(), refreshInterval);
+                    PointF objectPositionChange = MathUtils.getMathUtils().scalePoint(circle2.getVelocity(), refreshInterval);
                     PointF newThisCenter = MathUtils.getMathUtils().addPoint(circle1.getCenter(), thisPositionChange);
                     PointF newObjectCenter = MathUtils.getMathUtils().addPoint(circle2.getCenter(), objectPositionChange);
                     float newThreshold = MathUtils.getMathUtils().getDistance(newObjectCenter, newThisCenter) - (circle2.getRadius() + circle1.getRadius());
@@ -66,7 +67,7 @@ public class HadaPhysicsEngine {
             } else if (object2 instanceof PhysicsLine) {
                 if (circle1.isStill()) return false;
                 PhysicsLine line2 = (PhysicsLine) object2;
-                PointF positionChange = MathUtils.getMathUtils().scalePoint(circle1.getVelocity(), Configuration.REFRESH_INTERVAL);
+                PointF positionChange = MathUtils.getMathUtils().scalePoint(circle1.getVelocity(), refreshInterval);
                 PointF newThisCenter = MathUtils.getMathUtils().addPoint(circle1.getCenter(), positionChange);
 
                 // Detect if circle is within bounding rectangle of the line

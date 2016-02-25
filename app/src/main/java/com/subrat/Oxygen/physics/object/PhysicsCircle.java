@@ -82,15 +82,16 @@ public class PhysicsCircle extends PhysicsObject implements CircleInterface {
         return false;
     }
     public void updatePosition() {
+        float refreshInterval = (1000L / (float)Configuration.PHYSICS_FPS);
         // Don't change velocity if acceleration is very low
         // if (MathUtils.getAbsolute(this.getGravity()) > Configuration.getMinGravity()) {
-        PointF velocityChange = MathUtils.getMathUtils().scalePoint(getGravity(), Configuration.REFRESH_INTERVAL);
+        PointF velocityChange = MathUtils.getMathUtils().scalePoint(getGravity(), refreshInterval);
         MathUtils.getMathUtils().addToPoint(velocity, velocityChange);
         // }
 
         // Don't change position if velocity is very low
         // if (MathUtils.getAbsolute(this.getVelocity()) > Configuration.getMinVelocity()) {
-        PointF positionChange = MathUtils.getMathUtils().scalePoint(getVelocity(), Configuration.REFRESH_INTERVAL);
+        PointF positionChange = MathUtils.getMathUtils().scalePoint(getVelocity(), refreshInterval);
         MathUtils.getMathUtils().addToPoint(center, positionChange);
         // }
     }
