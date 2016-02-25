@@ -7,8 +7,9 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.subrat.Oxygen.activities.OxygenActivity;
-import com.subrat.Oxygen.objects.ObjectBuilder;
-import com.subrat.Oxygen.objects.Object;
+import com.subrat.Oxygen.graphics.HadaGraphicsEngine;
+import com.subrat.Oxygen.physics.PhysicsObjectBuilder;
+import com.subrat.Oxygen.graphics.object.DrawableObject;
 
 import java.util.ArrayList;
 
@@ -49,19 +50,9 @@ public class OxygenView extends View implements View.OnTouchListener {
     private void drawAllObjects(Canvas canvas) {
     	if (OxygenActivity.getContext() == null) return;
     	OxygenActivity.setCanvasDimensions(canvas.getWidth(), canvas.getHeight());
-        ObjectBuilder.createOrUpdateBoundaryLines();
+        PhysicsObjectBuilder.getPhysicsObjectBuilder().createOrUpdateBoundaryLines();
 
-        for (Object object : Object.getObjectList()) {
-            object.draw(canvas);
-        }
-        
-        /*
-        for (Circle particle : Object.getParticleList()) {
-        	particle.draw(canvas);
-        }
-        */
-        
-        Object.drawParticles(canvas);
+        HadaGraphicsEngine.getHadaGraphicsEngine().drawObjects(canvas);
     }
 
     @Override
@@ -92,15 +83,15 @@ public class OxygenView extends View implements View.OnTouchListener {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 drawingMode = true;
-                oxygenActivity.stopSimulation();
+                oxygenActivity.pauseSimulation();
                 break;
             case MotionEvent.ACTION_MOVE:
                 break;
             case MotionEvent.ACTION_UP:
-                ObjectBuilder.buildObject(points);
+                PhysicsObjectBuilder.getPhysicsObjectBuilder().buildObject(points);
                 points.clear();
                 drawingMode = false;
-                oxygenActivity.startSimulation();
+                oxygenActivity.resumeSimulation();
                 break;
             default:
                 return false;

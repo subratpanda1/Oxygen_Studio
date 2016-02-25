@@ -7,7 +7,8 @@ public class Configuration {
     public final static float MAX_VELOCITY = 0.5F; // In mtr per sec
     public final static float MIN_VELOCITY = 0.1F; // In mtr per sec
 
-    public final static float REFRESH_INTERVAL = 0.03F; // In sec
+    public final static int GRAPHICS_FPS = 50;
+    public final static int PHYSICS_FPS = 100;
     public final static float COLLISION_THRESHOLD = 0.001F; // In mtr
     public final static float CIRCLE_BORDER = 0.05F; // In mtr
     public final static float LINE_THICKNESS = 0.03F; // In mtr

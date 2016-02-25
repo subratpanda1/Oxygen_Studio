@@ -5,16 +5,17 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.view.View;
 import android.widget.Button;
 
 import com.subrat.Oxygen.R;
-import com.subrat.Oxygen.backendRoutines.PhysicsEngine;
-import com.subrat.Oxygen.backendRoutines.UpdateObjectsInAThread;
+import com.subrat.Oxygen.graphics.FrameBuffer;
+import com.subrat.Oxygen.graphics.HadaGraphicsEngine;
 import com.subrat.Oxygen.customviews.OxygenView;
-import com.subrat.Oxygen.objects.Object;
+import com.subrat.Oxygen.physics.PhysicsManager;
+import com.subrat.Oxygen.simulation.SimulatorNew;
 import com.subrat.Oxygen.utilities.Configuration;
+import com.subrat.Oxygen.utilities.Statistics;
 
 /**
  * Created by subrat.panda on 07/05/15.
@@ -26,13 +27,9 @@ public class OxygenActivity extends Activity {
 	private static float worldWidth = 0;   // In meter
 	private static float worldHeight = 0F; // In meter
 	
-	private static PhysicsEngine physicsEngine = null;
-
     private int alertSecondsCounter = 0;
     Runnable runnable;
     OxygenView oxygenView;
-
-    UpdateObjectsInAThread updateObjectsInAThread = null;
 
     Button.OnClickListener onClickListener;
 
@@ -43,63 +40,48 @@ public class OxygenActivity extends Activity {
         oxygenView = (OxygenView) findViewById(R.id.view);
         oxygenView.oxygenActivity = this;
 
-        try {
-        	Thread.sleep(3000);
-        } catch (Exception ex) {
-        	
-        }
-
         context = this;
 
-        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-        	physicsEngine = new PhysicsEngine();
-        }
+        addButton();
 
-        if (updateObjectsInAThread == null) {
-            updateObjectsInAThread = new UpdateObjectsInAThread(this, oxygenView);
-        }
-        
-        onClickListener = new Button.OnClickListener() {
-            public void onClick(View view) {
-            	if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-                	physicsEngine.addWater();
-                }
+        Runnable runnable = new Runnable() {
+            public void run() {
+                // Physics update callback comes here
             }
         };
-        
-        Button button = (Button) findViewById(R.id.waterButton);
-        button.setOnClickListener(onClickListener);
-        if (!Configuration.USE_LIQUIDFUN_PHYSICS) {
-        	button.setVisibility(View.GONE);
-        }
-        
+
+        Statistics.getStatistics().resetStatistics();
+        SimulatorNew.getSimulator().initSimulator();
         startSimulation();
     }
 
     public static Context getContext() { return context; }
     
-    public static PhysicsEngine getPhysicsEngine() { return physicsEngine; }
-
     public void stopSimulation() {
-        updateObjectsInAThread.stopThread();
+        HadaGraphicsEngine.getHadaGraphicsEngine().stopRenderLoop();
+        SimulatorNew.getSimulator().stopSimulator();
     }
 
     public void startSimulation() {
-        updateObjectsInAThread.startThread();
+        SimulatorNew.getSimulator().startSimulator();
+        HadaGraphicsEngine.getHadaGraphicsEngine().initRenderLoop(oxygenView);
+        HadaGraphicsEngine.getHadaGraphicsEngine().startRenderLoop();
+    }
+
+    public void pauseSimulation() {
+        SimulatorNew.getSimulator().pauseSimulator();
+    }
+
+    public void resumeSimulation() {
+        SimulatorNew.getSimulator().resumeSimulator();
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Object.getObjectList().clear();
-        Object.getParticleList().clear();
+        stopSimulation();
+        FrameBuffer.getFrameBuffer().clearFrameBuffers();
         context = null;
-        
-        if (Configuration.USE_LIQUIDFUN_PHYSICS) {
-        	physicsEngine.clearWorld();
-        	physicsEngine = null;
-        }
-
         finish();
     }
 
@@ -146,6 +128,20 @@ public class OxygenActivity extends Activity {
     	worldHeight = Configuration.DEFAULT_WORLD_HEIGHT;
     	int pixelsPerMeter = (int)(canvasHeight / worldHeight);
     	worldWidth = (float)canvasWidth / (float)pixelsPerMeter;
+    }
+
+    public void addButton() {
+        onClickListener = new Button.OnClickListener() {
+            public void onClick(View view) {
+                PhysicsManager.getPhysicsManager().addWater();
+            }
+        };
+
+        Button button = (Button) findViewById(R.id.waterButton);
+        button.setOnClickListener(onClickListener);
+        if (!Configuration.USE_LIQUIDFUN_PHYSICS) {
+            button.setVisibility(View.GONE);
+        }
     }
 }
 
